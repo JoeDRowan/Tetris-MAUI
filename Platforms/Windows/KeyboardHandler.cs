@@ -43,8 +43,8 @@ public static class KeyboardHandler
         Windows.System.VirtualKey.D => "d",
         Windows.System.VirtualKey.W => "w",
         Windows.System.VirtualKey.S => "s",
-        Windows.System.VirtualKey.Z => "z",
         Windows.System.VirtualKey.P => "p",
+        Windows.System.VirtualKey.E => "e",
         _ => null
     };
 }

@@ -16,13 +16,19 @@ public class GameEngine
     private double _dropAccumulator;
     private double _currentDropInterval;
     private bool _softDropping;
+    private DateTime _lastDownPress;
+    private int _downPressCount;
+    private bool _fastDropActive;
+    private DateTime _gameStartTime;
 
     public GameState State => _state;
     public GameConfig Config => _config;
+    public TimeSpan ElapsedTime => _gameStartTime == default ? TimeSpan.Zero : DateTime.Now - _gameStartTime;
 
     public event Action? StateChanged;
     public event Action? GameOver;
     public event Action<int>? LinesCleared;
+    public event Action<int>? LevelUp;
 
     public GameEngine(GameConfig config)
     {
@@ -37,6 +43,9 @@ public class GameEngine
         _currentDropInterval = _config.GetDropIntervalMs(_state.Level);
         _dropAccumulator = 0;
         _softDropping = false;
+        _fastDropActive = false;
+        _downPressCount = 0;
+        _gameStartTime = DateTime.Now;
 
         _gameTimer?.Stop();
         _gameTimer = dispatcher.CreateTimer();
@@ -45,6 +54,14 @@ public class GameEngine
         _gameTimer.Start();
 
         StateChanged?.Invoke();
+    }
+
+    public void EndGame()
+    {
+        if (_state.IsGameOver) return;
+        _state.IsGameOver = true;
+        _gameTimer?.Stop();
+        GameOver?.Invoke();
     }
 
     public void TogglePause()
@@ -72,25 +89,42 @@ public class GameEngine
         TryRotate(clockwise: true);
     }
 
-    public void RotateCounterClockwise()
-    {
-        if (!CanAct() || _state.CurrentPiece == null) return;
-        TryRotate(clockwise: false);
-    }
-
-    public void StartSoftDrop()
+    /// <summary>
+    /// Called on each down-key press. Tracks rapid presses for fast drop.
+    /// </summary>
+    public void DownPress()
     {
         if (!CanAct()) return;
+
+        var now = DateTime.Now;
+        if ((now - _lastDownPress).TotalMilliseconds < _config.FastDropTriggerMs)
+        {
+            _downPressCount++;
+            if (_downPressCount >= 3)
+            {
+                _fastDropActive = true;
+            }
+        }
+        else
+        {
+            _downPressCount = 1;
+            _fastDropActive = false;
+        }
+        _lastDownPress = now;
+
         _softDropping = true;
     }
 
     public void StopSoftDrop()
     {
         _softDropping = false;
+        _fastDropActive = false;
+        _downPressCount = 0;
     }
 
     public void HoldPiece()
     {
+        if (!_config.HoldEnabled) return;
         if (!CanAct() || _state.CurrentPiece == null || _state.HoldUsedThisTurn) return;
 
         _state.HoldUsedThisTurn = true;
@@ -104,7 +138,7 @@ public class GameEngine
             _state.CurrentPiece = new Tetromino(holdShape);
             var matrix = _state.CurrentPiece.CurrentMatrix;
             _state.CurrentCol = (_config.Columns - matrix.GetLength(1)) / 2;
-            _state.CurrentRow = _config.BufferRows - matrix.GetLength(0);
+            _state.CurrentRow = 0;
         }
         else
         {
@@ -119,11 +153,21 @@ public class GameEngine
     {
         if (_state.IsPaused || _state.IsGameOver) return;
 
-        double interval = _softDropping
-            ? _currentDropInterval / _config.SoftDropSpeedMultiplier
-            : _currentDropInterval;
+        double interval;
+        if (_fastDropActive)
+        {
+            interval = _config.FastDropIntervalMs;
+        }
+        else if (_softDropping)
+        {
+            interval = _currentDropInterval / _config.SoftDropSpeedMultiplier;
+        }
+        else
+        {
+            interval = _currentDropInterval;
+        }
 
-        _dropAccumulator += 16; // Approximate ms per tick
+        _dropAccumulator += 16;
 
         if (_dropAccumulator >= interval)
         {
@@ -154,12 +198,18 @@ public class GameEngine
 
         _state.Board.LockPiece(_state.CurrentPiece.Shape, _state.CurrentPiece.CurrentMatrix, _state.CurrentRow, _state.CurrentCol);
 
+        int previousLevel = _state.Level;
         int cleared = _state.Board.ClearLines();
         if (cleared > 0)
         {
             _state.AddLinesCleared(cleared);
             _currentDropInterval = _config.GetDropIntervalMs(_state.Level);
             LinesCleared?.Invoke(cleared);
+
+            if (_state.Level > previousLevel)
+            {
+                LevelUp?.Invoke(_state.Level);
+            }
         }
 
         // Check game over
@@ -179,6 +229,8 @@ public class GameEngine
         }
 
         _dropAccumulator = 0;
+        _fastDropActive = false;
+        _downPressCount = 0;
     }
 
     private bool TryMove(int dRow, int dCol)
@@ -210,13 +262,12 @@ public class GameEngine
 
         var newMatrix = piece.GetRotation(newRotation);
 
-        // Get wall kick offsets
         var kicks = GetWallKicks(piece.Shape, fromRotation, clockwise);
 
         foreach (var (dx, dy) in kicks)
         {
             int testCol = _state.CurrentCol + dx;
-            int testRow = _state.CurrentRow - dy; // Y is inverted (up is negative)
+            int testRow = _state.CurrentRow - dy;
 
             if (!_state.Board.HasCollision(newMatrix, testRow, testCol))
             {

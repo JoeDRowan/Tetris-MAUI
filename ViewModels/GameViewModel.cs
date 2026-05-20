@@ -6,9 +6,6 @@ using Tetris.Config;
 using Tetris.Models;
 using Tetris.Services;
 
-/// <summary>
-/// ViewModel bridging the game engine to the UI.
-/// </summary>
 public class GameViewModel : INotifyPropertyChanged
 {
     private readonly GameEngine _engine;
@@ -17,11 +14,13 @@ public class GameViewModel : INotifyPropertyChanged
     public GameConfig Config => _engine.Config;
     public GameState State => _engine.State;
     public HighScoreService HighScoreService => _highScoreService;
+    public TimeSpan ElapsedTime => _engine.ElapsedTime;
 
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action? Redraw;
     public event Action? OnGameOver;
     public event Action<int>? OnLinesCleared;
+    public event Action<int>? OnLevelUp;
 
     public int Score => State.Score;
     public int Level => State.Level;
@@ -54,19 +53,18 @@ public class GameViewModel : INotifyPropertyChanged
             OnGameOver?.Invoke();
         };
 
-        _engine.LinesCleared += (lines) =>
-        {
-            OnLinesCleared?.Invoke(lines);
-        };
+        _engine.LinesCleared += (lines) => OnLinesCleared?.Invoke(lines);
+        _engine.LevelUp += (level) => OnLevelUp?.Invoke(level);
     }
 
+    public void SetMode(GameMode mode) => Config.Mode = mode;
     public void StartNewGame(IDispatcher dispatcher) => _engine.StartNewGame(dispatcher);
+    public void EndGame() => _engine.EndGame();
     public void TogglePause() => _engine.TogglePause();
     public void MoveLeft() => _engine.MoveLeft();
     public void MoveRight() => _engine.MoveRight();
     public void RotateClockwise() => _engine.RotateClockwise();
-    public void RotateCounterClockwise() => _engine.RotateCounterClockwise();
-    public void StartSoftDrop() => _engine.StartSoftDrop();
+    public void DownPress() => _engine.DownPress();
     public void StopSoftDrop() => _engine.StopSoftDrop();
     public void HoldPiece() => _engine.HoldPiece();
 
