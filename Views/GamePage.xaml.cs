@@ -51,6 +51,8 @@ public partial class GamePage : ContentPage
 
     private void OnNewGameClicked(object? sender, EventArgs e)
     {
+        InfoPanel.IsVisible = false;
+        NewGameButton.IsVisible = true;
         _viewModel.StartNewGame(Dispatcher);
     }
 

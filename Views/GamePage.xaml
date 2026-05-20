@@ -46,13 +46,53 @@
                HorizontalOptions="Center" VerticalOptions="Center"
                IsVisible="False"/>
 
-        <!-- Bottom: Controls info -->
+        <!-- Info/Instructions overlay panel (shown at start) -->
+        <Border x:Name="InfoPanel"
+                Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="3"
+                BackgroundColor="#e0101028"
+                Stroke="#444"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 12"
+                HorizontalOptions="Center" VerticalOptions="Center"
+                Padding="30"
+                IsVisible="True">
+            <VerticalStackLayout Spacing="12" MaximumWidthRequest="420">
+                <Label Text="TETRIS" FontSize="36" TextColor="#00d4ff" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+                <Label Text="CONTROLS" FontSize="14" TextColor="White" FontAttributes="Bold" Margin="0,8,0,0"/>
+                <Label FontSize="12" TextColor="#ccc" LineBreakMode="WordWrap"
+                       Text="← / A ─ Move Left&#10;→ / D ─ Move Right&#10;↑ / W ─ Rotate Clockwise&#10;Z ─ Rotate Counter-Clockwise&#10;↓ / S ─ Soft Drop (hold for speed)&#10;Space ─ Hard Drop (instant)&#10;C / Shift ─ Hold/Reserve Piece&#10;P / Esc ─ Pause"/>
+
+                <Label Text="SCORING" FontSize="14" TextColor="White" FontAttributes="Bold" Margin="0,8,0,0"/>
+                <Label FontSize="12" TextColor="#ccc" LineBreakMode="WordWrap"
+                       Text="Soft Drop: 1 point per row&#10;Hard Drop: 2 points per row&#10;1 Line: 100 × Level&#10;2 Lines: 300 × Level&#10;3 Lines: 500 × Level&#10;4 Lines (Tetris): 800 × Level"/>
+
+                <Label Text="LEVELS" FontSize="14" TextColor="White" FontAttributes="Bold" Margin="0,8,0,0"/>
+                <Label FontSize="12" TextColor="#ccc" LineBreakMode="WordWrap"
+                       Text="Every 10 lines cleared advances you one level.&#10;Each level increases piece drop speed by 15%.&#10;Higher levels = more points per line clear!"/>
+
+                <Label Text="HOLD PIECE" FontSize="14" TextColor="White" FontAttributes="Bold" Margin="0,8,0,0"/>
+                <Label FontSize="12" TextColor="#ccc" LineBreakMode="WordWrap"
+                       Text="Press C or Shift to reserve the current piece for later.&#10;You can swap once per piece drop."/>
+
+                <Button Text="Start Game"
+                        Clicked="OnNewGameClicked"
+                        HorizontalOptions="Center"
+                        Margin="0,15,0,0"
+                        BackgroundColor="#2a2a4a"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Padding="20,10"/>
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Bottom: Controls reminder -->
         <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="3" HorizontalOptions="Center" Spacing="15" Margin="0,10,0,0">
             <Label Text="←→ Move  ↑ Rotate  ↓ Soft Drop  Space Hard Drop  C Hold  P Pause" 
                    FontSize="11" TextColor="Gray"/>
         </HorizontalStackLayout>
 
-        <!-- Top: New Game button -->
+        <!-- Top: New Game button (hidden when info panel showing) -->
         <Button x:Name="NewGameButton" 
                 Grid.Row="0" Grid.Column="1"
                 Text="New Game" 
@@ -60,7 +100,8 @@
                 HorizontalOptions="Center"
                 Margin="0,0,0,10"
                 BackgroundColor="#2a2a4a"
-                TextColor="White"/>
+                TextColor="White"
+                IsVisible="False"/>
     </Grid>
 
 </ContentPage>

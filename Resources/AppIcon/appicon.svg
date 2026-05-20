@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="456" height="456" viewBox="0 0 456 456" version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="0" width="456" height="456" fill="#512BD4" />
+    <rect x="0" y="0" width="456" height="456" fill="#1a1a2e" rx="60"/>
+    <!-- 4 lowercase 't' letters rotated around center point, pointing NE, SE, SW, NW -->
+    <!-- NE: rotated -45 degrees -->
+    <text x="228" y="228" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="#00d4ff"
+          text-anchor="middle" dominant-baseline="middle"
+          transform="rotate(-45, 228, 228)" opacity="0.9">t</text>
+    <!-- SE: rotated 45 degrees -->
+    <text x="228" y="228" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="#ff6b6b"
+          text-anchor="middle" dominant-baseline="middle"
+          transform="rotate(45, 228, 228)" opacity="0.9">t</text>
+    <!-- SW: rotated 135 degrees -->
+    <text x="228" y="228" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="#ffd93d"
+          text-anchor="middle" dominant-baseline="middle"
+          transform="rotate(135, 228, 228)" opacity="0.9">t</text>
+    <!-- NW: rotated -135 degrees (225) -->
+    <text x="228" y="228" font-family="Arial, sans-serif" font-size="180" font-weight="bold" fill="#6bff6b"
+          text-anchor="middle" dominant-baseline="middle"
+          transform="rotate(-135, 228, 228)" opacity="0.9">t</text>
 </svg>
