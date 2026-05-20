@@ -56,6 +56,22 @@ public partial class GamePage : ContentPage
         ProLabel.FontAttributes = isPro ? FontAttributes.Bold : FontAttributes.None;
         HoldLabel.IsVisible = !isPro;
         HoldView.IsVisible = !isPro;
+
+        // Color scheme change for Pro mode
+        if (isPro)
+        {
+            RightPanel.BackgroundColor = Color.FromRgb(230, 200, 200);
+            RightPanel.Stroke = Color.FromRgb(180, 100, 100);
+            ModeArea.BackgroundColor = Color.FromRgb(250, 220, 220);
+            ModeArea.Stroke = Color.FromRgb(180, 100, 100);
+        }
+        else
+        {
+            RightPanel.BackgroundColor = Color.FromRgb(184, 200, 232);
+            RightPanel.Stroke = Color.FromRgb(119, 153, 187);
+            ModeArea.BackgroundColor = Color.FromRgb(221, 230, 248);
+            ModeArea.Stroke = Color.FromRgb(119, 153, 204);
+        }
     }
 
     private void OnNewGameClicked(object? sender, EventArgs e)
@@ -74,6 +90,12 @@ public partial class GamePage : ContentPage
         {
             _viewModel.EndGame();
         }
+    }
+
+    private void OnStatsExitClicked(object? sender, EventArgs e)
+    {
+        StatsPanel.IsVisible = false;
+        InfoPanel.IsVisible = true;
     }
 
     private void OnRedraw()
