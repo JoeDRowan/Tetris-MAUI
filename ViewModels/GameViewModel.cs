@@ -21,6 +21,7 @@ public class GameViewModel : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
     public event Action? Redraw;
     public event Action? OnGameOver;
+    public event Action<int>? OnLinesCleared;
 
     public int Score => State.Score;
     public int Level => State.Level;
@@ -52,6 +53,11 @@ public class GameViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(IsGameOver));
             OnGameOver?.Invoke();
         };
+
+        _engine.LinesCleared += (lines) =>
+        {
+            OnLinesCleared?.Invoke(lines);
+        };
     }
 
     public void StartNewGame(IDispatcher dispatcher) => _engine.StartNewGame(dispatcher);
@@ -62,7 +68,6 @@ public class GameViewModel : INotifyPropertyChanged
     public void RotateCounterClockwise() => _engine.RotateCounterClockwise();
     public void StartSoftDrop() => _engine.StartSoftDrop();
     public void StopSoftDrop() => _engine.StopSoftDrop();
-    public void HardDrop() => _engine.HardDrop();
     public void HoldPiece() => _engine.HoldPiece();
 
     public bool CheckHighScore() => _highScoreService.IsHighScore(State.Score);

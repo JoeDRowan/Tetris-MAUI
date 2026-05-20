@@ -31,6 +31,7 @@ public partial class GamePage : ContentPage
 
         _viewModel.Redraw += OnRedraw;
         _viewModel.OnGameOver += OnGameOver;
+        _viewModel.OnLinesCleared += OnLinesCleared;
         _viewModel.PropertyChanged += (s, e) =>
         {
             MainThread.BeginInvokeOnMainThread(() =>
@@ -68,6 +69,31 @@ public partial class GamePage : ContentPage
             NextView.Invalidate();
             HoldView.Invalidate();
         });
+    }
+
+    private void OnLinesCleared(int lines)
+    {
+        if (lines >= 4)
+        {
+            // Show "TETRIS!" overlay for 1.5 seconds
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                StatusLabel.Text = "TETRIS!";
+                StatusLabel.TextColor = Color.FromRgb(220, 50, 50);
+                StatusLabel.FontSize = 40;
+                StatusLabel.IsVisible = true;
+
+                await Task.Delay((int)_viewModel.Config.TetrisOverlayDurationMs);
+
+                // Only hide if still showing TETRIS (not overridden by pause/game over)
+                if (StatusLabel.Text == "TETRIS!")
+                {
+                    StatusLabel.IsVisible = false;
+                    StatusLabel.TextColor = Color.FromRgb(34, 34, 34);
+                    StatusLabel.FontSize = 32;
+                }
+            });
+        }
     }
 
     private async void OnGameOver()
@@ -119,10 +145,6 @@ public partial class GamePage : ContentPage
                 _viewModel.StartSoftDrop();
                 return true;
             case "space":
-                _viewModel.HardDrop();
-                return true;
-            case "c":
-            case "shift":
                 _viewModel.HoldPiece();
                 return true;
             case "p":

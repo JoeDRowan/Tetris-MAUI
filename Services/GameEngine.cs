@@ -22,6 +22,7 @@ public class GameEngine
 
     public event Action? StateChanged;
     public event Action? GameOver;
+    public event Action<int>? LinesCleared;
 
     public GameEngine(GameConfig config)
     {
@@ -88,22 +89,6 @@ public class GameEngine
         _softDropping = false;
     }
 
-    public void HardDrop()
-    {
-        if (!CanAct() || _state.CurrentPiece == null) return;
-
-        int dropDistance = 0;
-        while (!_state.Board.HasCollision(_state.CurrentPiece.CurrentMatrix, _state.CurrentRow + 1, _state.CurrentCol))
-        {
-            _state.CurrentRow++;
-            dropDistance++;
-        }
-
-        _state.Score += _scoreService.GetHardDropScore(dropDistance);
-        LockCurrentPiece();
-        StateChanged?.Invoke();
-    }
-
     public void HoldPiece()
     {
         if (!CanAct() || _state.CurrentPiece == null || _state.HoldUsedThisTurn) return;
@@ -154,10 +139,6 @@ public class GameEngine
         if (!_state.Board.HasCollision(_state.CurrentPiece.CurrentMatrix, _state.CurrentRow + 1, _state.CurrentCol))
         {
             _state.CurrentRow++;
-            if (_softDropping)
-            {
-                _state.Score += _config.PointsPerSoftDrop;
-            }
         }
         else
         {
@@ -178,6 +159,7 @@ public class GameEngine
         {
             _state.AddLinesCleared(cleared);
             _currentDropInterval = _config.GetDropIntervalMs(_state.Level);
+            LinesCleared?.Invoke(cleared);
         }
 
         // Check game over

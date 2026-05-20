@@ -39,13 +39,11 @@ public static class KeyboardHandler
         Windows.System.VirtualKey.Down => "down",
         Windows.System.VirtualKey.Space => "space",
         Windows.System.VirtualKey.Escape => "escape",
-        Windows.System.VirtualKey.Shift => "shift",
         Windows.System.VirtualKey.A => "a",
         Windows.System.VirtualKey.D => "d",
         Windows.System.VirtualKey.W => "w",
         Windows.System.VirtualKey.S => "s",
         Windows.System.VirtualKey.Z => "z",
-        Windows.System.VirtualKey.C => "c",
         Windows.System.VirtualKey.P => "p",
         _ => null
     };

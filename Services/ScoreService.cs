@@ -14,9 +14,5 @@ public class ScoreService
         _config = config;
     }
 
-    public int GetSoftDropScore(int rowsDropped) => rowsDropped * _config.PointsPerSoftDrop;
-
-    public int GetHardDropScore(int rowsDropped) => rowsDropped * _config.PointsPerHardDrop;
-
     public int GetLineClearScore(int linesCleared, int level) => _config.GetLineClearScore(linesCleared, level);
 }
