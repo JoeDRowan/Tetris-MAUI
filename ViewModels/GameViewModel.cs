@@ -21,6 +21,7 @@ public class GameViewModel : INotifyPropertyChanged
     public event Action? OnGameOver;
     public event Action<int>? OnLinesCleared;
     public event Action<int>? OnLevelUp;
+    public event Action<int, int>? OnLevelUpRowsRemoved;
 
     public int Score => State.Score;
     public int Level => State.Level;
@@ -55,6 +56,7 @@ public class GameViewModel : INotifyPropertyChanged
 
         _engine.LinesCleared += (lines) => OnLinesCleared?.Invoke(lines);
         _engine.LevelUp += (level) => OnLevelUp?.Invoke(level);
+        _engine.LevelUpRowsRemoved += (level, rows) => OnLevelUpRowsRemoved?.Invoke(level, rows);
     }
 
     public void SetMode(GameMode mode) => Config.Mode = mode;

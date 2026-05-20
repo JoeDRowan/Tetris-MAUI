@@ -29,6 +29,7 @@ public class GameEngine
     public event Action? GameOver;
     public event Action<int>? LinesCleared;
     public event Action<int>? LevelUp;
+    public event Action<int, int>? LevelUpRowsRemoved; // (newLevel, rowsRemoved)
 
     public GameEngine(GameConfig config)
     {
@@ -221,6 +222,17 @@ public class GameEngine
             if (_state.Level > previousLevel)
             {
                 LevelUp?.Invoke(_state.Level);
+
+                // Level-up reward: remove bottom rows (level / 2, rounded down)
+                int rowsToRemove = _state.Level / 2;
+                if (rowsToRemove > 0)
+                {
+                    int removed = _state.Board.RemoveBottomRows(rowsToRemove);
+                    if (removed > 0)
+                    {
+                        LevelUpRowsRemoved?.Invoke(_state.Level, removed);
+                    }
+                }
             }
         }
 

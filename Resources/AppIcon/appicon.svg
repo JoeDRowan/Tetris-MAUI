@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="456" height="456" viewBox="0 0 456 456" version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="0" width="456" height="456" fill="#a8d4f8" rx="60"/>
+    <rect x="0" y="0" width="456" height="456" fill="#cce4fc" rx="60"/>
     <!-- Two uppercase T's anchored at bottom center, slanting to left and right corners -->
     <text x="228" y="400" font-family="Arial, sans-serif" font-size="340" font-weight="bold" fill="white"
           text-anchor="middle" dominant-baseline="auto"

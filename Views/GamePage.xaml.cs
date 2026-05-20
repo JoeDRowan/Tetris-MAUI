@@ -34,6 +34,7 @@ public partial class GamePage : ContentPage
         _viewModel.OnGameOver += OnGameOver;
         _viewModel.OnLinesCleared += OnLinesCleared;
         _viewModel.OnLevelUp += OnLevelUp;
+        _viewModel.OnLevelUpRowsRemoved += OnLevelUpRowsRemoved;
         _viewModel.PropertyChanged += (s, e) =>
         {
             MainThread.BeginInvokeOnMainThread(() =>
@@ -139,23 +140,57 @@ public partial class GamePage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            StatusLabel.Text = $"LEVEL {newLevel}\nSpeeding up!";
+            StatusLabel.Text = $"⚡ LEVEL {newLevel} ⚡\nSpeeding up!";
             StatusLabel.TextColor = Color.FromRgb(32, 96, 204);
             StatusLabel.FontSize = 28;
             StatusLabel.IsVisible = true;
 
-            // Flash effect
-            await Task.Delay(200);
-            StatusLabel.Opacity = 0.5;
-            await Task.Delay(150);
-            StatusLabel.Opacity = 1.0;
-            await Task.Delay(150);
-            StatusLabel.Opacity = 0.5;
-            await Task.Delay(150);
-            StatusLabel.Opacity = 1.0;
-            await Task.Delay((int)_viewModel.Config.LevelUpFlashDurationMs - 650);
+            // Flash effect with board pulse
+            for (int i = 0; i < 3; i++)
+            {
+                StatusLabel.Opacity = 0.4;
+                BoardView.Opacity = 0.6;
+                await Task.Delay(120);
+                StatusLabel.Opacity = 1.0;
+                BoardView.Opacity = 1.0;
+                await Task.Delay(120);
+            }
 
-            if (StatusLabel.Text?.StartsWith("LEVEL") == true)
+            await Task.Delay((int)_viewModel.Config.LevelUpFlashDurationMs - 720);
+
+            if (StatusLabel.Text?.Contains("LEVEL") == true)
+            {
+                StatusLabel.IsVisible = false;
+                StatusLabel.TextColor = Color.FromRgb(34, 34, 34);
+                StatusLabel.FontSize = 32;
+                StatusLabel.Opacity = 1.0;
+                BoardView.Opacity = 1.0;
+            }
+        });
+    }
+
+    private void OnLevelUpRowsRemoved(int level, int rowsRemoved)
+    {
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            // Show message after level-up flash settles
+            await Task.Delay((int)_viewModel.Config.LevelUpFlashDurationMs + 200);
+
+            StatusLabel.Text = $"🧹 {rowsRemoved} row{(rowsRemoved > 1 ? "s" : "")} cleared!";
+            StatusLabel.TextColor = Color.FromRgb(180, 100, 0);
+            StatusLabel.FontSize = 24;
+            StatusLabel.IsVisible = true;
+
+            // Quick sweep effect
+            StatusLabel.Opacity = 0;
+            for (int i = 0; i < 4; i++)
+            {
+                StatusLabel.Opacity = (i + 1) * 0.25;
+                await Task.Delay(80);
+            }
+            await Task.Delay(800);
+
+            if (StatusLabel.Text?.Contains("cleared") == true)
             {
                 StatusLabel.IsVisible = false;
                 StatusLabel.TextColor = Color.FromRgb(34, 34, 34);

@@ -141,6 +141,37 @@ public class GameBoard
         Array.Clear(_grid);
     }
 
+    /// <summary>
+    /// Remove up to 'count' occupied bottom rows as a level-up reward.
+    /// Returns the number of rows actually removed.
+    /// </summary>
+    public int RemoveBottomRows(int count)
+    {
+        int removed = 0;
+        for (int i = 0; i < count; i++)
+        {
+            int bottomRow = TotalRows - 1 - i;
+            if (bottomRow < _config.BufferRows) break;
+
+            bool hasContent = false;
+            for (int col = 0; col < Columns; col++)
+            {
+                if (_grid[bottomRow, col] != null)
+                {
+                    hasContent = true;
+                    break;
+                }
+            }
+
+            if (hasContent)
+            {
+                RemoveRow(bottomRow);
+                removed++;
+            }
+        }
+        return removed;
+    }
+
     private bool IsRowFull(int row)
     {
         for (int col = 0; col < Columns; col++)

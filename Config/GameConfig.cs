@@ -15,8 +15,8 @@ public enum GameMode
 public class GameConfig
 {
     // Board dimensions
-    public int Columns { get; set; } = 10;
-    public int Rows { get; set; } = 20;
+    public int Columns { get; set; } = 12;
+    public int Rows { get; set; } = 24;
     public int BufferRows { get; set; } = 2;
 
     // Game mode
