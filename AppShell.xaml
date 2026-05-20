@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Tetris.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Tetris"
+    xmlns:views="clr-namespace:Tetris.Views"
+    Title="Tetris"
+    Shell.NavBarIsVisible="False">
+
+    <ShellContent
+        Title="Game"
+        ContentTemplate="{DataTemplate views:GamePage}"
+        Route="GamePage" />
+
+</Shell>
