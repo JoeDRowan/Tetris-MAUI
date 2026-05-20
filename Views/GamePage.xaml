@@ -5,55 +5,58 @@
              Title="Tetris"
              BackgroundColor="#eef0f8">
 
-    <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,*,Auto" Padding="10">
+    <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,*,Auto" Padding="10">
 
-        <!-- Left Panel: Hold + Mode -->
-        <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="10" VerticalOptions="Start" Margin="10,0">
-            <Label Text="MODE" FontSize="12" TextColor="#555" HorizontalOptions="Center" FontAttributes="Bold"/>
-            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+        <!-- Top Bar: Exit Game | New Game | Mode Toggle -->
+        <HorizontalStackLayout Grid.Row="0" Grid.ColumnSpan="3" HorizontalOptions="Center" Spacing="12" Margin="0,0,0,10">
+            <Button x:Name="ExitGameButton" Text="End Game" Clicked="OnExitGameClicked"
+                    FontSize="11" BackgroundColor="#cc3333" TextColor="White"
+                    Padding="10,5" IsVisible="False"/>
+            <Button x:Name="NewGameButton" Text="New Game" Clicked="OnNewGameClicked"
+                    BackgroundColor="#2060cc" TextColor="White" FontSize="11" Padding="10,5"
+                    IsVisible="False"/>
+            <HorizontalStackLayout Spacing="5" VerticalOptions="Center">
                 <Label x:Name="ClassicLabel" Text="Classic" FontSize="11" TextColor="#2060cc" FontAttributes="Bold" VerticalOptions="Center"/>
                 <Switch x:Name="ModeSwitch" IsToggled="False" Toggled="OnModeToggled" VerticalOptions="Center"/>
                 <Label x:Name="ProLabel" Text="Pro" FontSize="11" TextColor="#888" VerticalOptions="Center"/>
             </HorizontalStackLayout>
-
-            <BoxView HeightRequest="1" Color="#ccc" Margin="0,5"/>
-
-            <Label x:Name="HoldLabel" Text="HOLD" FontSize="14" TextColor="#333" HorizontalOptions="Center" FontAttributes="Bold"/>
-            <GraphicsView x:Name="HoldView" WidthRequest="100" HeightRequest="80"/>
-
-            <BoxView HeightRequest="1" Color="#ccc" Margin="0,5"/>
-
-            <Button x:Name="ExitGameButton" Text="End Game" Clicked="OnExitGameClicked"
-                    FontSize="11" BackgroundColor="#cc3333" TextColor="White"
-                    Padding="10,5" IsVisible="False" HorizontalOptions="Center"/>
-        </VerticalStackLayout>
+        </HorizontalStackLayout>
 
         <!-- Center: Game Board -->
         <GraphicsView x:Name="BoardView"
-                      Grid.Row="1" Grid.Column="1"
+                      Grid.Row="1" Grid.Column="0"
                       HorizontalOptions="Center"
                       VerticalOptions="Center"/>
 
-        <!-- Right Panel: Next + Score -->
-        <VerticalStackLayout Grid.Row="1" Grid.Column="2" Spacing="10" VerticalOptions="Start" Margin="10,0">
-            <Label Text="NEXT" FontSize="14" TextColor="#333" HorizontalOptions="Center" FontAttributes="Bold"/>
-            <GraphicsView x:Name="NextView" WidthRequest="100" HeightRequest="180"/>
+        <!-- Right Panel: Score area (colored) + Next + Hold -->
+        <Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
+                BackgroundColor="#d0daf5" StrokeThickness="0"
+                StrokeShape="RoundRectangle 8" Padding="12" Margin="8,0,0,0">
+            <VerticalStackLayout Spacing="10" VerticalOptions="Start" MinimumWidthRequest="110">
+                <Label Text="SCORE" FontSize="12" TextColor="#2040aa" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label x:Name="ScoreLabel" Text="0" FontSize="22" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
 
-            <BoxView HeightRequest="1" Color="#ccc" Margin="0,10"/>
+                <Label Text="LEVEL" FontSize="12" TextColor="#2040aa" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label x:Name="LevelLabel" Text="1" FontSize="22" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
 
-            <Label Text="SCORE" FontSize="12" TextColor="#666" HorizontalOptions="Center"/>
-            <Label x:Name="ScoreLabel" Text="0" FontSize="20" TextColor="#222" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label Text="LINES" FontSize="12" TextColor="#2040aa" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label x:Name="LinesLabel" Text="0" FontSize="22" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
 
-            <Label Text="LEVEL" FontSize="12" TextColor="#666" HorizontalOptions="Center"/>
-            <Label x:Name="LevelLabel" Text="1" FontSize="20" TextColor="#222" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <BoxView HeightRequest="2" Color="#8899cc" Margin="0,5"/>
 
-            <Label Text="LINES" FontSize="12" TextColor="#666" HorizontalOptions="Center"/>
-            <Label x:Name="LinesLabel" Text="0" FontSize="20" TextColor="#222" HorizontalOptions="Center" FontAttributes="Bold"/>
-        </VerticalStackLayout>
+                <Label Text="NEXT" FontSize="14" TextColor="#2040aa" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <GraphicsView x:Name="NextView" WidthRequest="100" HeightRequest="180"/>
+
+                <BoxView HeightRequest="2" Color="#8899cc" Margin="0,5"/>
+
+                <Label x:Name="HoldLabel" Text="HOLD" FontSize="14" TextColor="#2040aa" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <GraphicsView x:Name="HoldView" WidthRequest="100" HeightRequest="80"/>
+            </VerticalStackLayout>
+        </Border>
 
         <!-- Status overlay text (TETRIS!, Level Up, PAUSED, GAME OVER) -->
         <Label x:Name="StatusLabel"
-               Grid.Row="1" Grid.Column="1"
+               Grid.Row="1" Grid.Column="0"
                FontSize="32" TextColor="#222"
                FontAttributes="Bold"
                HorizontalOptions="Center" VerticalOptions="Center"
@@ -78,6 +81,7 @@
                 <Label x:Name="StatsLinesLabel" FontSize="16" TextColor="#333"/>
                 <Label x:Name="StatsTimeLabel" FontSize="16" TextColor="#333"/>
                 <Label x:Name="StatsModeLabel" FontSize="16" TextColor="#333"/>
+                <Label x:Name="StatsRankLabel" FontSize="16" TextColor="#cc6600" FontAttributes="Bold" IsVisible="False"/>
                 <BoxView HeightRequest="1" Color="#ccc"/>
                 <Button Text="Play Again" Clicked="OnNewGameClicked"
                         BackgroundColor="#2060cc" TextColor="White" FontAttributes="Bold"
@@ -129,36 +133,26 @@
 
         <!-- Bottom: Controls bar with delineation -->
         <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="3" HorizontalOptions="Center" Spacing="4" Margin="0,10,0,0">
-            <Border Stroke="#bbb" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#f0f0f8">
-                <Label Text="←→ Move" FontSize="11" TextColor="#444"/>
+            <Border Stroke="#8899cc" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#dde4f5">
+                <Label Text="←→ Move" FontSize="11" TextColor="#333"/>
             </Border>
-            <Border Stroke="#bbb" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#f0f0f8">
-                <Label Text="↑ Rotate" FontSize="11" TextColor="#444"/>
+            <Border Stroke="#8899cc" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#dde4f5">
+                <Label Text="↑ Rotate" FontSize="11" TextColor="#333"/>
             </Border>
-            <Border Stroke="#bbb" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#f0f0f8">
-                <Label Text="↓ Drop" FontSize="11" TextColor="#444"/>
+            <Border Stroke="#8899cc" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#dde4f5">
+                <Label Text="↓ Drop" FontSize="11" TextColor="#333"/>
             </Border>
-            <Border Stroke="#bbb" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#f0f0f8">
-                <Label Text="Space Hold" FontSize="11" TextColor="#444"/>
+            <Border Stroke="#8899cc" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#dde4f5">
+                <Label Text="Space Hold" FontSize="11" TextColor="#333"/>
             </Border>
-            <Border Stroke="#bbb" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#f0f0f8">
-                <Label Text="P Pause" FontSize="11" TextColor="#444"/>
+            <Border Stroke="#8899cc" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#dde4f5">
+                <Label Text="P Pause" FontSize="11" TextColor="#333"/>
             </Border>
-            <Border Stroke="#bbb" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#f0f0f8">
-                <Label Text="E End" FontSize="11" TextColor="#444"/>
+            <Border Stroke="#8899cc" StrokeThickness="1" StrokeShape="RoundRectangle 4" Padding="6,3" BackgroundColor="#dde4f5">
+                <Label Text="E End" FontSize="11" TextColor="#333"/>
             </Border>
         </HorizontalStackLayout>
 
-        <!-- Top: New Game button -->
-        <Button x:Name="NewGameButton" 
-                Grid.Row="0" Grid.Column="1"
-                Text="New Game" 
-                Clicked="OnNewGameClicked"
-                HorizontalOptions="Center"
-                Margin="0,0,0,10"
-                BackgroundColor="#2060cc"
-                TextColor="White"
-                IsVisible="False"/>
     </Grid>
 
 </ContentPage>

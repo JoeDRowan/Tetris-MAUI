@@ -70,9 +70,9 @@ public class GameViewModel : INotifyPropertyChanged
 
     public bool CheckHighScore() => _highScoreService.IsHighScore(State.Score);
 
-    public void SaveHighScore(string name)
+    public int SaveHighScore(string name)
     {
-        _highScoreService.AddScore(new HighScore
+        return _highScoreService.AddScore(new HighScore
         {
             Name = name,
             Score = State.Score,

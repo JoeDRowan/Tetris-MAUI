@@ -26,11 +26,22 @@ public class HighScoreService
         return _scores.Count < MaxScores || score > _scores[^1].Score;
     }
 
-    public void AddScore(HighScore entry)
+    /// <summary>
+    /// Adds a score and returns the 1-based rank (or -1 if not placed).
+    /// </summary>
+    public int AddScore(HighScore entry)
     {
         _scores.Add(entry);
         _scores = [.. _scores.OrderByDescending(s => s.Score).Take(MaxScores)];
         Save();
+
+        // Find the rank by matching the entry
+        for (int i = 0; i < _scores.Count; i++)
+        {
+            if (_scores[i].Score == entry.Score && _scores[i].Name == entry.Name && _scores[i].Date == entry.Date)
+                return i + 1;
+        }
+        return -1;
     }
 
     private void Load()

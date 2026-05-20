@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="456" height="456" viewBox="0 0 456 456" version="1.1" xmlns="http://www.w3.org/2000/svg">
-    <!-- NE: bigger -->
-    <text x="228" y="228" font-family="Arial, sans-serif" font-size="220" font-weight="bold" fill="#2060cc"
-          text-anchor="middle" dominant-baseline="middle"
-          transform="rotate(-45, 228, 228)">t</text>
-    <!-- SE: normal -->
-    <text x="228" y="228" font-family="Arial, sans-serif" font-size="160" font-weight="bold" fill="#cc2020"
-          text-anchor="middle" dominant-baseline="middle"
-          transform="rotate(45, 228, 228)">t</text>
-    <!-- SW: normal -->
-    <text x="228" y="228" font-family="Arial, sans-serif" font-size="160" font-weight="bold" fill="#cc9900"
-          text-anchor="middle" dominant-baseline="middle"
-          transform="rotate(135, 228, 228)">t</text>
-    <!-- NW: bigger -->
-    <text x="228" y="228" font-family="Arial, sans-serif" font-size="220" font-weight="bold" fill="#20a020"
-          text-anchor="middle" dominant-baseline="middle"
-          transform="rotate(-135, 228, 228)">t</text>
+    <!-- Two uppercase T's anchored at bottom center, slanting to left and right corners -->
+    <text x="228" y="400" font-family="Arial, sans-serif" font-size="340" font-weight="bold" fill="#2060cc"
+          text-anchor="middle" dominant-baseline="auto"
+          transform="rotate(-20, 228, 400)">T</text>
+    <text x="228" y="400" font-family="Arial, sans-serif" font-size="340" font-weight="bold" fill="#4488dd"
+          text-anchor="middle" dominant-baseline="auto"
+          transform="rotate(20, 228, 400)">T</text>
 </svg>

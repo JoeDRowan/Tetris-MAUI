@@ -113,13 +113,18 @@ public class GameEngine
         _lastDownPress = now;
 
         _softDropping = true;
+
+        // Immediately drop one line on each press for responsiveness
+        if (!_fastDropActive)
+        {
+            DropOneLine();
+        }
     }
 
     public void StopSoftDrop()
     {
         _softDropping = false;
-        _fastDropActive = false;
-        _downPressCount = 0;
+        // Don't reset fast drop here — let it persist until piece locks
     }
 
     public void HoldPiece()
@@ -152,6 +157,13 @@ public class GameEngine
     private void OnTick(object? sender, EventArgs e)
     {
         if (_state.IsPaused || _state.IsGameOver) return;
+
+        // Timeout fast drop if no key press within trigger window
+        if (_fastDropActive && (DateTime.Now - _lastDownPress).TotalMilliseconds > _config.FastDropTriggerMs * 2)
+        {
+            _fastDropActive = false;
+            _downPressCount = 0;
+        }
 
         double interval;
         if (_fastDropActive)

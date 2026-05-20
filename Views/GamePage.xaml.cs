@@ -163,6 +163,7 @@ public partial class GamePage : ContentPage
         StatsLinesLabel.Text = $"Lines Cleared: {_viewModel.Lines}";
         StatsTimeLabel.Text = $"Time: {elapsed.Minutes}:{elapsed.Seconds:D2}";
         StatsModeLabel.Text = $"Mode: {modeText}";
+        StatsRankLabel.IsVisible = false;
         StatsPanel.IsVisible = true;
 
         if (_viewModel.CheckHighScore())
@@ -179,7 +180,12 @@ public partial class GamePage : ContentPage
 
         if (!string.IsNullOrWhiteSpace(name))
         {
-            _viewModel.SaveHighScore(name);
+            int rank = _viewModel.SaveHighScore(name);
+            if (rank > 0)
+            {
+                StatsRankLabel.Text = $"🏆 High Score! Ranked #{rank}";
+                StatsRankLabel.IsVisible = true;
+            }
         }
     }
 
