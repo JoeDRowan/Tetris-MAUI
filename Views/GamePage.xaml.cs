@@ -10,6 +10,7 @@ public partial class GamePage : ContentPage
     private readonly PreviewDrawable _nextDrawable;
     private readonly PreviewDrawable _holdDrawable;
     private bool _gameActive;
+    private bool _dialogOpen;
 
     public GamePage()
     {
@@ -94,8 +95,7 @@ public partial class GamePage : ContentPage
 
     private void OnStatsExitClicked(object? sender, EventArgs e)
     {
-        StatsPanel.IsVisible = false;
-        InfoPanel.IsVisible = true;
+        Application.Current?.CloseWindow(Application.Current.Windows[0]);
     }
 
     private void OnRedraw()
@@ -196,9 +196,11 @@ public partial class GamePage : ContentPage
 
     private async void ShowHighScorePrompt()
     {
+        _dialogOpen = true;
         string name = await DisplayPromptAsync("High Score!",
             $"Score: {_viewModel.Score}\nEnter your name:",
             "Save", "Cancel", "Player", 20);
+        _dialogOpen = false;
 
         if (!string.IsNullOrWhiteSpace(name))
         {
@@ -213,6 +215,8 @@ public partial class GamePage : ContentPage
 
     public bool HandleKeyDown(string key)
     {
+        if (_dialogOpen) return false;
+
         switch (key.ToLowerInvariant())
         {
             case "left":
@@ -250,6 +254,8 @@ public partial class GamePage : ContentPage
 
     public bool HandleKeyUp(string key)
     {
+        if (_dialogOpen) return false;
+
         switch (key.ToLowerInvariant())
         {
             case "down":
