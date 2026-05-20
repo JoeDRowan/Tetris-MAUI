@@ -30,7 +30,7 @@
                       Grid.Row="1" Grid.Column="0"
                       HorizontalOptions="End"
                       VerticalOptions="Center"
-                      Margin="0,0,8,0"/>
+                      Margin="0,5,8,5"/>
 
         <!-- Right Panel: Next (top) + Score/Level/Lines + Hold -->
         <Border x:Name="RightPanel" Grid.Row="1" Grid.Column="1"

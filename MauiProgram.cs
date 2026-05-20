@@ -31,7 +31,7 @@ public static class MauiProgram
 						var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(windowId, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
 						int screenWidth = displayArea.WorkArea.Width;
 						int screenHeight = displayArea.WorkArea.Height;
-						int winWidth = (int)(screenWidth * 0.38);
+						int winWidth = (int)(screenWidth * 0.30);
 						int winHeight = (int)(screenHeight * 0.95);
 						int x = (screenWidth - winWidth) / 2;
 						int y = 5;

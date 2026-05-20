@@ -59,7 +59,7 @@ public class GameConfig
     };
 
     // Visual - light but colorful board
-    public float CellSize { get; set; } = 28f;
+    public float CellSize { get; set; } = 25f;
     public float GhostPieceOpacity { get; set; } = 0.25f;
     public float BoardBorderWidth { get; set; } = 2f;
     public Color BoardBorderColor { get; set; } = Color.FromRgb(70, 90, 140);
