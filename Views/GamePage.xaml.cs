@@ -241,6 +241,9 @@ public partial class GamePage : ContentPage
             case "e":
                 if (_gameActive) _viewModel.EndGame();
                 return true;
+            case "n":
+                OnNewGameClicked(null, EventArgs.Empty);
+                return true;
         }
         return false;
     }

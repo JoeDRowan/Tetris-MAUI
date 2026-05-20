@@ -6,13 +6,13 @@ namespace Tetris.WinUI;
 
 /// <summary>
 /// Windows-specific keyboard input handler for the Tetris game.
-/// Hooks into the WinUI window's key events.
+/// Uses PreviewKeyDown to intercept keys before focused controls handle them.
 /// </summary>
 public static class KeyboardHandler
 {
     public static void Attach(Microsoft.UI.Xaml.Window window, GamePage gamePage)
     {
-        window.Content.KeyDown += (sender, args) =>
+        window.Content.PreviewKeyDown += (sender, args) =>
         {
             var key = MapKey(args.Key);
             if (key != null && gamePage.HandleKeyDown(key))
@@ -21,7 +21,7 @@ public static class KeyboardHandler
             }
         };
 
-        window.Content.KeyUp += (sender, args) =>
+        window.Content.PreviewKeyUp += (sender, args) =>
         {
             var key = MapKey(args.Key);
             if (key != null && gamePage.HandleKeyUp(key))
@@ -45,6 +45,7 @@ public static class KeyboardHandler
         Windows.System.VirtualKey.S => "s",
         Windows.System.VirtualKey.P => "p",
         Windows.System.VirtualKey.E => "e",
+        Windows.System.VirtualKey.N => "n",
         _ => null
     };
 }

@@ -9,7 +9,7 @@
 
         <!-- Top Bar: End Game | Classic [Switch] Pro | New Game -->
         <HorizontalStackLayout Grid.Row="0" Grid.ColumnSpan="2" HorizontalOptions="Center" Spacing="8" Margin="0,0,0,10">
-            <Button x:Name="ExitGameButton" Text="End Game" Clicked="OnExitGameClicked"
+            <Button x:Name="ExitGameButton" Text="End Game (E)" Clicked="OnExitGameClicked"
                     FontSize="11" BackgroundColor="#cc3333" TextColor="White"
                     Padding="10,5" IsVisible="False" VerticalOptions="Center"/>
             <Border x:Name="ModeArea" Stroke="#7799cc" StrokeThickness="1" StrokeShape="RoundRectangle 6"
@@ -20,7 +20,7 @@
                     <Label x:Name="ProLabel" Text="Pro" FontSize="11" TextColor="#888" VerticalOptions="Center" Margin="0,0,0,0"/>
                 </HorizontalStackLayout>
             </Border>
-            <Button x:Name="NewGameButton" Text="New Game" Clicked="OnNewGameClicked"
+            <Button x:Name="NewGameButton" Text="New Game (N)" Clicked="OnNewGameClicked"
                     BackgroundColor="#2060cc" TextColor="White" FontSize="11" Padding="10,5"
                     IsVisible="False" VerticalOptions="Center"/>
         </HorizontalStackLayout>
