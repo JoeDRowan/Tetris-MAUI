@@ -26,6 +26,7 @@ public class GameViewModel : INotifyPropertyChanged
     public int Score => State.Score;
     public int Level => State.Level;
     public int Lines => State.TotalLinesCleared;
+    public int LinesRemaining => State.LinesRemaining;
     public bool IsGameOver => State.IsGameOver;
     public bool IsPaused => State.IsPaused;
     public string StatusText => State.IsGameOver ? "GAME OVER" : State.IsPaused ? "PAUSED" : "";

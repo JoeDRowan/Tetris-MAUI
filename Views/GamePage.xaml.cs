@@ -42,8 +42,17 @@ public partial class GamePage : ContentPage
                 ScoreLabel.Text = _viewModel.Score.ToString();
                 LevelLabel.Text = _viewModel.Level.ToString();
                 LinesLabel.Text = _viewModel.Lines.ToString();
-                StatusLabel.Text = _viewModel.StatusText;
-                StatusLabel.IsVisible = !string.IsNullOrEmpty(_viewModel.StatusText);
+                RemainingLabel.Text = _viewModel.LinesRemaining.ToString();
+
+                if (!string.IsNullOrEmpty(_viewModel.StatusText))
+                {
+                    StatusLabel.Text = _viewModel.StatusText;
+                    StatusBorder.IsVisible = true;
+                }
+                else if (StatusLabel.Text == "PAUSED" || StatusLabel.Text == "GAME OVER")
+                {
+                    StatusBorder.IsVisible = false;
+                }
             });
         };
     }
@@ -122,7 +131,7 @@ public partial class GamePage : ContentPage
                 StatusLabel.Text = "🔥 TETRIS! 🔥";
                 StatusLabel.TextColor = Color.FromRgb(220, 50, 50);
                 StatusLabel.FontSize = 42;
-                StatusLabel.IsVisible = true;
+                StatusBorder.IsVisible = true;
 
                 // Flash the board for emphasis
                 for (int i = 0; i < 4; i++)
@@ -137,7 +146,7 @@ public partial class GamePage : ContentPage
 
                 if (StatusLabel.Text?.Contains("TETRIS") == true)
                 {
-                    StatusLabel.IsVisible = false;
+                    StatusBorder.IsVisible = false;
                     StatusLabel.TextColor = Color.FromRgb(34, 34, 34);
                     StatusLabel.FontSize = 32;
                 }
@@ -149,18 +158,21 @@ public partial class GamePage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(async () =>
         {
+            // Wait for any Tetris message to finish first
+            await Task.Delay(200);
+
             StatusLabel.Text = $"⚡ LEVEL {newLevel} ⚡\nSpeeding up!";
             StatusLabel.TextColor = Color.FromRgb(32, 96, 204);
             StatusLabel.FontSize = 28;
-            StatusLabel.IsVisible = true;
+            StatusBorder.IsVisible = true;
 
             // Flash effect with board pulse
             for (int i = 0; i < 3; i++)
             {
-                StatusLabel.Opacity = 0.4;
+                StatusBorder.Opacity = 0.4;
                 BoardView.Opacity = 0.6;
                 await Task.Delay(120);
-                StatusLabel.Opacity = 1.0;
+                StatusBorder.Opacity = 0.95;
                 BoardView.Opacity = 1.0;
                 await Task.Delay(120);
             }
@@ -169,10 +181,10 @@ public partial class GamePage : ContentPage
 
             if (StatusLabel.Text?.Contains("LEVEL") == true)
             {
-                StatusLabel.IsVisible = false;
+                StatusBorder.IsVisible = false;
                 StatusLabel.TextColor = Color.FromRgb(34, 34, 34);
                 StatusLabel.FontSize = 32;
-                StatusLabel.Opacity = 1.0;
+                StatusBorder.Opacity = 0.95;
                 BoardView.Opacity = 1.0;
             }
         });
@@ -182,19 +194,19 @@ public partial class GamePage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            // Show message after level-up flash settles
-            await Task.Delay((int)_viewModel.Config.LevelUpFlashDurationMs + 200);
+            // Wait for level-up message to finish
+            await Task.Delay((int)_viewModel.Config.LevelUpFlashDurationMs + 400);
 
             StatusLabel.Text = $"🧹 {rowsRemoved} row{(rowsRemoved > 1 ? "s" : "")} cleared!\nLevel bonus!";
             StatusLabel.TextColor = Color.FromRgb(180, 100, 0);
             StatusLabel.FontSize = 24;
-            StatusLabel.IsVisible = true;
+            StatusBorder.IsVisible = true;
+            StatusBorder.Opacity = 0;
 
-            // Quick sweep effect
-            StatusLabel.Opacity = 0;
-            for (int i = 0; i < 4; i++)
+            // Fade in
+            for (int i = 1; i <= 4; i++)
             {
-                StatusLabel.Opacity = (i + 1) * 0.25;
+                StatusBorder.Opacity = i * 0.25;
                 await Task.Delay(80);
             }
 
@@ -203,10 +215,10 @@ public partial class GamePage : ContentPage
 
             if (StatusLabel.Text?.Contains("cleared") == true)
             {
-                StatusLabel.IsVisible = false;
+                StatusBorder.IsVisible = false;
                 StatusLabel.TextColor = Color.FromRgb(34, 34, 34);
                 StatusLabel.FontSize = 32;
-                StatusLabel.Opacity = 1.0;
+                StatusBorder.Opacity = 0.95;
             }
         });
     }

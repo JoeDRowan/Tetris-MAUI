@@ -31,6 +31,18 @@ public class GameConfig
     // Levels & progression
     public int StartingLevel { get; set; } = 1;
     public int LinesPerLevel { get; set; } = 10;
+    public int LinesPerLevelIncreaseClassic { get; set; } = 1;
+    public int LinesPerLevelIncreasePro { get; set; } = 2;
+
+    /// <summary>
+    /// Lines needed to complete a given level.
+    /// Level 1 = 10, Level 2 = 11 (Classic) or 12 (Pro), etc.
+    /// </summary>
+    public int GetLinesForLevel(int level)
+    {
+        int increase = Mode == GameMode.Classic ? LinesPerLevelIncreaseClassic : LinesPerLevelIncreasePro;
+        return LinesPerLevel + (level - 1) * increase;
+    }
 
     // Timing (milliseconds)
     public double BaseDropIntervalMs { get; set; } = 1000;

@@ -96,13 +96,20 @@ public class GameState
         LinesCleared += lines;
         Score += _config.GetLineClearScore(lines, Level);
 
-        // Level up check
-        while (LinesCleared >= _config.LinesPerLevel)
+        // Level up check - each level requires different lines
+        int linesNeeded = _config.GetLinesForLevel(Level);
+        while (LinesCleared >= linesNeeded)
         {
-            LinesCleared -= _config.LinesPerLevel;
+            LinesCleared -= linesNeeded;
             Level++;
+            linesNeeded = _config.GetLinesForLevel(Level);
         }
     }
+
+    /// <summary>
+    /// Lines remaining to complete the current level.
+    /// </summary>
+    public int LinesRemaining => _config.GetLinesForLevel(Level) - LinesCleared;
 
     /// <summary>
     /// Calculate where the current piece would land (ghost piece position).

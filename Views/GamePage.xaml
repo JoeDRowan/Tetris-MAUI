@@ -54,6 +54,9 @@
                 <Label Text="LINES" FontSize="11" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
                 <Label x:Name="LinesLabel" Text="0" FontSize="20" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
 
+                <Label Text="REMAINING" FontSize="10" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label x:Name="RemainingLabel" Text="10" FontSize="18" TextColor="#555" HorizontalOptions="Center" FontAttributes="Bold"/>
+
                 <BoxView HeightRequest="2" Color="#7799bb" Margin="0,2"/>
 
                 <Label x:Name="HoldLabel" Text="HOLD" FontSize="13" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
@@ -62,12 +65,22 @@
         </Border>
 
         <!-- Status overlay text (TETRIS!, Level Up, PAUSED, GAME OVER) -->
-        <Label x:Name="StatusLabel"
-               Grid.Row="1" Grid.Column="0"
-               FontSize="32" TextColor="#222"
-               FontAttributes="Bold"
-               HorizontalOptions="Center" VerticalOptions="Center"
-               IsVisible="False"/>
+        <Border x:Name="StatusBorder"
+                Grid.Row="1" Grid.Column="0"
+                BackgroundColor="#e0e8f8"
+                Stroke="#4466aa"
+                StrokeThickness="2"
+                StrokeShape="RoundRectangle 10"
+                Padding="20,12"
+                HorizontalOptions="Center" VerticalOptions="Center"
+                ZIndex="80"
+                Opacity="0.95"
+                IsVisible="False">
+            <Label x:Name="StatusLabel"
+                   FontSize="32" TextColor="#222"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"/>
+        </Border>
 
         <!-- Stats overlay (shown on game end) -->
         <Border x:Name="StatsPanel"
