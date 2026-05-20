@@ -70,10 +70,10 @@ public class GameState
         CurrentPiece = new Tetromino(shape);
         HoldUsedThisTurn = false;
 
-        // Spawn position: centered, at top of visible area (row 0 internal = just above visible)
+        // Spawn at top of visible area (internal row = BufferRows = visible row 0)
         var matrix = CurrentPiece.CurrentMatrix;
         CurrentCol = (_config.Columns - matrix.GetLength(1)) / 2;
-        CurrentRow = 0;
+        CurrentRow = _config.BufferRows;
 
         // Check if spawn position has collision (game over)
         if (Board.HasCollision(matrix, CurrentRow, CurrentCol))
