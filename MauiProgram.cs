@@ -30,8 +30,8 @@ public static class MauiProgram
 						var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
 						var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(windowId, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
 						int screenWidth = displayArea.WorkArea.Width;
-						int winWidth = 700;
-						int winHeight = 750;
+						int winWidth = 900;
+						int winHeight = 950;
 						int x = (screenWidth - winWidth) / 2;
 						int y = 20; // Near top of screen
 						appWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, winWidth, winHeight));
