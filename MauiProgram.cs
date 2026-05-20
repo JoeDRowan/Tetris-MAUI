@@ -24,17 +24,17 @@ public static class MauiProgram
 				{
 					windowsLifecycle.OnWindowCreated(window =>
 					{
-						// Position window near top of screen, large size
+						// Position window near top of screen
 						var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
 						var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
 						var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
 						var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(windowId, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
 						int screenWidth = displayArea.WorkArea.Width;
 						int screenHeight = displayArea.WorkArea.Height;
-						int winWidth = (int)(screenWidth * 0.55);
-						int winHeight = (int)(screenHeight * 0.92);
+						int winWidth = (int)(screenWidth * 0.38);
+						int winHeight = (int)(screenHeight * 0.95);
 						int x = (screenWidth - winWidth) / 2;
-						int y = 10;
+						int y = 5;
 						appWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, winWidth, winHeight));
 
 						window.Activated += OnWindowActivated;
