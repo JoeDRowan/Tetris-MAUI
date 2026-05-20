@@ -2,11 +2,11 @@
 <svg width="456" height="456" viewBox="0 0 456 456" version="1.1" xmlns="http://www.w3.org/2000/svg">
     <rect x="0" y="0" width="456" height="456" fill="#cce4fc" rx="60"/>
     <!-- Left T: smaller, blue-tinted -->
-    <text x="228" y="400" font-family="Arial, sans-serif" font-size="300" font-weight="bold" fill="#88bbee"
+    <text x="200" y="410" font-family="Arial, sans-serif" font-size="280" font-weight="bold" fill="#88bbee"
           text-anchor="middle" dominant-baseline="auto"
-          transform="rotate(-20, 228, 400)">T</text>
-    <!-- Right T: bigger/higher, purple-tinted -->
-    <text x="240" y="380" font-family="Arial, sans-serif" font-size="360" font-weight="bold" fill="#99aadd"
+          transform="rotate(-22, 200, 410)">T</text>
+    <!-- Right T: much bigger/higher, purple-tinted -->
+    <text x="270" y="350" font-family="Arial, sans-serif" font-size="420" font-weight="bold" fill="#99aadd"
           text-anchor="middle" dominant-baseline="auto"
-          transform="rotate(18, 240, 380)">T</text>
+          transform="rotate(15, 270, 350)">T</text>
 </svg>

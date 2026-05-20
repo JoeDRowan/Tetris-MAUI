@@ -38,7 +38,10 @@
                 StrokeShape="RoundRectangle 8" Padding="12" Margin="0,0,0,0">
             <VerticalStackLayout Spacing="6" VerticalOptions="Start" MinimumWidthRequest="110">
                 <Label Text="NEXT" FontSize="14" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
-                <GraphicsView x:Name="NextView" WidthRequest="100" HeightRequest="170"/>
+                <Border Stroke="#4466aa" StrokeThickness="2" StrokeShape="RoundRectangle 6"
+                        BackgroundColor="#d8e8ff" Padding="4" HorizontalOptions="Center">
+                    <GraphicsView x:Name="NextView" WidthRequest="100" HeightRequest="130"/>
+                </Border>
 
                 <BoxView HeightRequest="2" Color="#7799bb" Margin="0,2"/>
 

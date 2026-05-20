@@ -119,14 +119,23 @@ public partial class GamePage : ContentPage
         {
             MainThread.BeginInvokeOnMainThread(async () =>
             {
-                StatusLabel.Text = "TETRIS!";
+                StatusLabel.Text = "🔥 TETRIS! 🔥";
                 StatusLabel.TextColor = Color.FromRgb(220, 50, 50);
-                StatusLabel.FontSize = 40;
+                StatusLabel.FontSize = 42;
                 StatusLabel.IsVisible = true;
 
-                await Task.Delay((int)_viewModel.Config.TetrisOverlayDurationMs);
+                // Flash the board for emphasis
+                for (int i = 0; i < 4; i++)
+                {
+                    BoardView.Opacity = 0.3;
+                    await Task.Delay(100);
+                    BoardView.Opacity = 1.0;
+                    await Task.Delay(100);
+                }
 
-                if (StatusLabel.Text == "TETRIS!")
+                await Task.Delay((int)_viewModel.Config.TetrisOverlayDurationMs - 800);
+
+                if (StatusLabel.Text?.Contains("TETRIS") == true)
                 {
                     StatusLabel.IsVisible = false;
                     StatusLabel.TextColor = Color.FromRgb(34, 34, 34);
@@ -176,7 +185,7 @@ public partial class GamePage : ContentPage
             // Show message after level-up flash settles
             await Task.Delay((int)_viewModel.Config.LevelUpFlashDurationMs + 200);
 
-            StatusLabel.Text = $"🧹 {rowsRemoved} row{(rowsRemoved > 1 ? "s" : "")} cleared!";
+            StatusLabel.Text = $"🧹 {rowsRemoved} row{(rowsRemoved > 1 ? "s" : "")} cleared!\nLevel bonus!";
             StatusLabel.TextColor = Color.FromRgb(180, 100, 0);
             StatusLabel.FontSize = 24;
             StatusLabel.IsVisible = true;
@@ -188,7 +197,9 @@ public partial class GamePage : ContentPage
                 StatusLabel.Opacity = (i + 1) * 0.25;
                 await Task.Delay(80);
             }
-            await Task.Delay(800);
+
+            // Keep on screen for 2.5 seconds
+            await Task.Delay(2500);
 
             if (StatusLabel.Text?.Contains("cleared") == true)
             {

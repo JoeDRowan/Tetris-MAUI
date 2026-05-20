@@ -14,8 +14,8 @@ public class HighScoreService
 
     public HighScoreService()
     {
-        var docs = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        var appDir = Path.Combine(docs, "Tetris");
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        var appDir = Path.Combine(localAppData, "Tetris");
         Directory.CreateDirectory(appDir);
         _filePath = Path.Combine(appDir, "highscores.json");
         Load();
