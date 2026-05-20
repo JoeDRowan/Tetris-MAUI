@@ -32,26 +32,26 @@
                       VerticalOptions="Center"
                       Margin="0,0,8,0"/>
 
-        <!-- Right Panel: Score + Next + Hold -->
+        <!-- Right Panel: Next (top) + Score/Level/Lines + Hold -->
         <Border x:Name="RightPanel" Grid.Row="1" Grid.Column="1"
                 BackgroundColor="#b8c8e8" Stroke="#7799bb" StrokeThickness="1"
                 StrokeShape="RoundRectangle 8" Padding="12" Margin="0,0,0,0">
-            <VerticalStackLayout Spacing="8" VerticalOptions="Start" MinimumWidthRequest="110">
-                <Label Text="SCORE" FontSize="12" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
-                <Label x:Name="ScoreLabel" Text="0" FontSize="22" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
+            <VerticalStackLayout Spacing="6" VerticalOptions="Start" MinimumWidthRequest="110">
+                <Label Text="NEXT" FontSize="14" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <GraphicsView x:Name="NextView" WidthRequest="100" HeightRequest="170"/>
 
-                <Label Text="LEVEL" FontSize="12" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
-                <Label x:Name="LevelLabel" Text="1" FontSize="22" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <BoxView HeightRequest="2" Color="#7799bb" Margin="0,2"/>
 
-                <Label Text="LINES" FontSize="12" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
-                <Label x:Name="LinesLabel" Text="0" FontSize="22" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label Text="SCORE" FontSize="11" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label x:Name="ScoreLabel" Text="0" FontSize="20" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
 
-                <BoxView HeightRequest="2" Color="#7799bb" Margin="0,4"/>
+                <Label Text="LEVEL" FontSize="11" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label x:Name="LevelLabel" Text="1" FontSize="20" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
 
-                <Label Text="NEXT" FontSize="13" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
-                <GraphicsView x:Name="NextView" WidthRequest="100" HeightRequest="180"/>
+                <Label Text="LINES" FontSize="11" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label x:Name="LinesLabel" Text="0" FontSize="20" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
 
-                <BoxView HeightRequest="2" Color="#7799bb" Margin="0,4"/>
+                <BoxView HeightRequest="2" Color="#7799bb" Margin="0,2"/>
 
                 <Label x:Name="HoldLabel" Text="HOLD" FontSize="13" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
                 <GraphicsView x:Name="HoldView" WidthRequest="100" HeightRequest="80"/>

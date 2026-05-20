@@ -16,7 +16,7 @@ public class GameConfig
 {
     // Board dimensions
     public int Columns { get; set; } = 12;
-    public int Rows { get; set; } = 24;
+    public int Rows { get; set; } = 22;
     public int BufferRows { get; set; } = 2;
 
     // Game mode
@@ -26,6 +26,7 @@ public class GameConfig
     public int PreviewCount => Mode == GameMode.Classic ? 2 : 1;
     public bool HoldEnabled => Mode == GameMode.Classic;
     public double SpeedMultiplierPerLevel => Mode == GameMode.Classic ? 0.85 : 0.75;
+    public int LevelUpRowDivisor => Mode == GameMode.Classic ? 2 : 3;
 
     // Levels & progression
     public int StartingLevel { get; set; } = 1;
@@ -58,7 +59,7 @@ public class GameConfig
     };
 
     // Visual - light but colorful board
-    public float CellSize { get; set; } = 30f;
+    public float CellSize { get; set; } = 26f;
     public float GhostPieceOpacity { get; set; } = 0.25f;
     public float BoardBorderWidth { get; set; } = 2f;
     public Color BoardBorderColor { get; set; } = Color.FromRgb(70, 90, 140);

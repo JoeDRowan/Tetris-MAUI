@@ -223,8 +223,8 @@ public class GameEngine
             {
                 LevelUp?.Invoke(_state.Level);
 
-                // Level-up reward: remove bottom rows (level / 2, rounded down)
-                int rowsToRemove = _state.Level / 2;
+                // Level-up reward: remove bottom rows (level / divisor, rounded down)
+                int rowsToRemove = _state.Level / _config.LevelUpRowDivisor;
                 if (rowsToRemove > 0)
                 {
                     int removed = _state.Board.RemoveBottomRows(rowsToRemove);
