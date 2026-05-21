@@ -295,6 +295,7 @@ public class GameEngine
         if (cascadeCleared > 0)
         {
             _state.CascadeCount++;
+            _state.CascadeLines += cascadeCleared;
             _state.AddLinesCleared(cascadeCleared);
             _currentDropInterval = _config.GetDropIntervalMs(_state.Level);
             CascadeClear?.Invoke(_state.CascadeCount, cascadeCleared);

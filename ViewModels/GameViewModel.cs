@@ -34,6 +34,7 @@ public class GameViewModel : INotifyPropertyChanged
     public int TotalLines => State.TotalLinesCleared;
     public int TetrisCount => State.TetrisCount;
     public int CascadeCount => State.CascadeCount;
+    public int CascadeLines => State.CascadeLines;
     public bool IsGameOver => State.IsGameOver;
     public bool IsPaused => State.IsPaused;
     public string StatusText => State.IsGameOver ? "GAME OVER" : State.IsPaused ? "PAUSED" : "";

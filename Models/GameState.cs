@@ -24,6 +24,7 @@ public class GameState
     public int TotalLinesCleared { get; set; }
     public int TetrisCount { get; set; }
     public int CascadeCount { get; set; }
+    public int CascadeLines { get; set; }
     public bool IsGameOver { get; set; }
     public bool IsPaused { get; set; }
 
@@ -45,6 +46,7 @@ public class GameState
         TotalLinesCleared = 0;
         TetrisCount = 0;
         CascadeCount = 0;
+        CascadeLines = 0;
         IsGameOver = false;
         IsPaused = false;
         HoldPiece = null;
