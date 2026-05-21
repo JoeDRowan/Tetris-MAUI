@@ -242,6 +242,10 @@ public class GameEngine
 
         _state.Board.LockPiece(_state.CurrentPiece.Shape, _state.CurrentPiece.CurrentMatrix, _state.CurrentRow, _state.CurrentCol);
 
+        // Clear current piece immediately so it's no longer rendered as a falling piece
+        // (its cells are now part of the grid)
+        _state.CurrentPiece = null;
+
         _previousLevelAtLock = _state.Level;
         var fullRows = _state.Board.GetFullRowIndices();
 
