@@ -25,7 +25,7 @@ public class PreviewDrawable : IDrawable
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        float cellSize = _isHoldPanel ? _config.CellSize * 0.7f : _config.CellSize * 0.7f;
+        float cellSize = _isHoldPanel ? _config.CellSize * 0.7f : _config.CellSize * 0.85f;
         float padding = _isHoldPanel ? 10f : 4f;
 
         // Background
@@ -41,9 +41,17 @@ public class PreviewDrawable : IDrawable
         }
         else if (_nextPieces != null)
         {
-            // Start with offset to push pieces down from top
-            float yOffset = 18f;
-            float piecePadding = 10f;
+            // Calculate total height and center vertically
+            float piecePadding = 12f;
+            float totalHeight = 0;
+            foreach (var shape in _nextPieces)
+            {
+                var matrix = TetrominoData.GetRotations(shape)[0];
+                totalHeight += matrix.GetLength(0) * cellSize;
+            }
+            totalHeight += (_nextPieces.Length - 1) * piecePadding;
+
+            float yOffset = Math.Max(4f, (dirtyRect.Height - totalHeight) / 2);
             foreach (var shape in _nextPieces)
             {
                 var matrix = TetrominoData.GetRotations(shape)[0];
