@@ -148,7 +148,7 @@
                 <Label FontSize="12" TextColor="#333" LineBreakMode="WordWrap"
                        Text="Every 10 lines → level up → pieces speed up!&#10;Pro mode speeds up faster than Classic."/>
 
-                <Button Text="▶  Start Game"
+                <Button Text="▶  Start Game (N)"
                         Clicked="OnNewGameClicked"
                         HorizontalOptions="Center"
                         Margin="0,15,0,0"
