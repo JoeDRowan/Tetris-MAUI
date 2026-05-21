@@ -51,6 +51,9 @@
                 <Label Text="LEVEL" FontSize="11" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
                 <Label x:Name="LevelLabel" Text="1" FontSize="20" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
 
+                <Label Text="SPEED" FontSize="11" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
+                <Label x:Name="SpeedLabel" Text="1.0" FontSize="20" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
+
                 <Label Text="LINES" FontSize="11" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
                 <Label x:Name="LinesLabel" Text="0" FontSize="20" TextColor="#111" HorizontalOptions="Center" FontAttributes="Bold"/>
 

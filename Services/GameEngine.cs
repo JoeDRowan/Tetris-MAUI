@@ -340,6 +340,9 @@ public class GameEngine
     {
         if (_state.Level > _previousLevelAtLock)
         {
+            // Clear held piece on level change
+            _state.HoldPiece = null;
+
             LevelUp?.Invoke(_state.Level);
 
             int rowsToRemove = _state.Level / _config.LevelUpRowDivisor;

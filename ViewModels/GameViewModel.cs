@@ -29,6 +29,7 @@ public class GameViewModel : INotifyPropertyChanged
 
     public int Score => State.Score;
     public int Level => State.Level;
+    public double Speed => Math.Round(1000.0 / _engine.Config.GetDropIntervalMs(State.Level), 1);
     public int Lines => State.LinesCleared; // Lines cleared this level
     public int LinesRemaining => State.LinesRemaining;
     public int TotalLines => State.TotalLinesCleared;

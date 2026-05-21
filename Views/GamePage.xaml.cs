@@ -45,6 +45,7 @@ public partial class GamePage : ContentPage
             {
                 ScoreLabel.Text = _viewModel.Score.ToString();
                 LevelLabel.Text = _viewModel.Level.ToString();
+                SpeedLabel.Text = _viewModel.Speed.ToString("F1");
                 LinesLabel.Text = _viewModel.Lines.ToString();
                 RemainingLabel.Text = _viewModel.LinesRemaining.ToString();
 
