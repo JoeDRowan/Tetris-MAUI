@@ -25,8 +25,8 @@ public class PreviewDrawable : IDrawable
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        float cellSize = _config.CellSize * 0.7f;
-        float padding = 10f;
+        float cellSize = _isHoldPanel ? _config.CellSize * 0.7f : _config.CellSize * 0.55f;
+        float padding = _isHoldPanel ? 10f : 6f;
 
         // Background
         canvas.FillColor = _config.BoardBackgroundColor;
