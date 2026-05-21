@@ -108,7 +108,7 @@
                     <Button x:Name="StatsContinueButton" Text="Continue" Clicked="OnStatsContinueClicked"
                             BackgroundColor="#22aa44" TextColor="White" FontAttributes="Bold"
                             Padding="20,10" IsVisible="False"/>
-                    <Button Text="Play Again" Clicked="OnNewGameClicked"
+                    <Button Text="Play Again" Clicked="OnPlayAgainClicked"
                             BackgroundColor="#2060cc" TextColor="White" FontAttributes="Bold"
                             Padding="20,10"/>
                     <Button Text="Exit" Clicked="OnStatsExitClicked"

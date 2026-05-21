@@ -92,6 +92,7 @@ public partial class GamePage : ContentPage
         NewGameButton.IsVisible = true;
         ExitGameButton.IsVisible = true;
         _gameActive = true;
+        _highScoreSaved = false;
         _viewModel.StartNewGame(Dispatcher);
     }
 
@@ -103,9 +104,24 @@ public partial class GamePage : ContentPage
         }
     }
 
-    private void OnStatsExitClicked(object? sender, EventArgs e)
+    private bool _highScoreSaved;
+
+    private async void OnStatsExitClicked(object? sender, EventArgs e)
     {
+        if (!_highScoreSaved && _viewModel.CheckHighScore())
+        {
+            await ShowHighScorePrompt();
+        }
         Application.Current?.CloseWindow(Application.Current.Windows[0]);
+    }
+
+    private async void OnPlayAgainClicked(object? sender, EventArgs e)
+    {
+        if (!_highScoreSaved && _viewModel.CheckHighScore())
+        {
+            await ShowHighScorePrompt();
+        }
+        OnNewGameClicked(sender, e);
     }
 
     private void OnStatsContinueClicked(object? sender, EventArgs e)
@@ -268,14 +284,9 @@ public partial class GamePage : ContentPage
         StatsRankLabel.IsVisible = false;
         StatsContinueButton.IsVisible = _viewModel.EndedVoluntarily;
         StatsPanel.IsVisible = true;
-
-        if (_viewModel.CheckHighScore())
-        {
-            ShowHighScorePrompt();
-        }
     }
 
-    private async void ShowHighScorePrompt()
+    private async Task ShowHighScorePrompt()
     {
         _dialogOpen = true;
         string name = await DisplayPromptAsync("High Score!",
@@ -285,6 +296,7 @@ public partial class GamePage : ContentPage
 
         if (!string.IsNullOrWhiteSpace(name))
         {
+            _highScoreSaved = true;
             int rank = _viewModel.SaveHighScore(name);
             if (rank > 0)
             {
