@@ -17,12 +17,12 @@ public class GameState
     public int CurrentCol { get; set; }
     public Queue<TetrominoShape> NextQueue { get; } = new();
     public Tetromino? HoldPiece { get; set; }
-    public bool HoldUsedThisTurn { get; set; }
 
     public int Score { get; set; }
     public int Level { get; set; }
     public int LinesCleared { get; set; }
     public int TotalLinesCleared { get; set; }
+    public int TetrisCount { get; set; }
     public bool IsGameOver { get; set; }
     public bool IsPaused { get; set; }
 
@@ -42,10 +42,10 @@ public class GameState
         Level = _config.StartingLevel;
         LinesCleared = 0;
         TotalLinesCleared = 0;
+        TetrisCount = 0;
         IsGameOver = false;
         IsPaused = false;
         HoldPiece = null;
-        HoldUsedThisTurn = false;
         Board.Clear();
         NextQueue.Clear();
         _bag.Clear();
@@ -68,7 +68,6 @@ public class GameState
         NextQueue.Enqueue(GetNextFromBag());
 
         CurrentPiece = new Tetromino(shape);
-        HoldUsedThisTurn = false;
 
         // Spawn at top of visible area (internal row = BufferRows = visible row 0)
         var matrix = CurrentPiece.CurrentMatrix;
@@ -95,6 +94,9 @@ public class GameState
         TotalLinesCleared += lines;
         LinesCleared += lines;
         Score += _config.GetLineClearScore(lines, Level);
+
+        if (lines >= 4)
+            TetrisCount++;
 
         // Level up check - each level requires different lines
         int linesNeeded = _config.GetLinesForLevel(Level);

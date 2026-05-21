@@ -11,6 +11,7 @@ public class GameBoardDrawable : IDrawable
 {
     private readonly GameConfig _config;
     private GameState? _state;
+    public int HighlightBottomRows { get; set; }
 
     public GameBoardDrawable(GameConfig config)
     {
@@ -79,6 +80,20 @@ public class GameBoardDrawable : IDrawable
         canvas.StrokeColor = _config.BoardBorderColor;
         canvas.StrokeSize = _config.BoardBorderWidth;
         canvas.DrawRectangle(offsetX, offsetY, boardWidth, boardHeight);
+
+        // Highlight bottom rows for level-up bonus removal
+        if (HighlightBottomRows > 0)
+        {
+            canvas.Alpha = 0.5f;
+            canvas.FillColor = Color.FromRgb(255, 200, 0);
+            for (int r = 0; r < HighlightBottomRows; r++)
+            {
+                int row = _config.Rows - 1 - r;
+                float y = offsetY + row * cellSize;
+                canvas.FillRectangle(offsetX, y, boardWidth, cellSize);
+            }
+            canvas.Alpha = 1f;
+        }
     }
 
     private void DrawPiece(ICanvas canvas, float offsetX, float offsetY, Tetromino piece, int pieceRow, int pieceCol, float cellSize, float opacity)

@@ -20,6 +20,7 @@ public class GameEngine
     private int _downPressCount;
     private bool _fastDropActive;
     private DateTime _gameStartTime;
+    private int _pendingBonusRows;
 
     public GameState State => _state;
     public GameConfig Config => _config;
@@ -46,6 +47,7 @@ public class GameEngine
         _softDropping = false;
         _fastDropActive = false;
         _downPressCount = 0;
+        _pendingBonusRows = 0;
         _gameStartTime = DateTime.Now;
 
         _gameTimer?.Stop();
@@ -57,12 +59,32 @@ public class GameEngine
         StateChanged?.Invoke();
     }
 
+    /// <summary>
+    /// Called by UI after level-up bonus animation completes to actually remove the rows.
+    /// </summary>
+    public int ExecuteLevelBonusRemoval()
+    {
+        if (_pendingBonusRows <= 0) return 0;
+        int removed = _state.Board.RemoveBottomRows(_pendingBonusRows);
+        _pendingBonusRows = 0;
+        StateChanged?.Invoke();
+        return removed;
+    }
+
     public void EndGame()
     {
         if (_state.IsGameOver) return;
         _state.IsGameOver = true;
         _gameTimer?.Stop();
         GameOver?.Invoke();
+    }
+
+    public void ContinueGame()
+    {
+        if (!_state.IsGameOver) return;
+        _state.IsGameOver = false;
+        _gameTimer?.Start();
+        StateChanged?.Invoke();
     }
 
     public void TogglePause()
@@ -131,9 +153,8 @@ public class GameEngine
     public void HoldPiece()
     {
         if (!_config.HoldEnabled) return;
-        if (!CanAct() || _state.CurrentPiece == null || _state.HoldUsedThisTurn) return;
+        if (!CanAct() || _state.CurrentPiece == null) return;
 
-        _state.HoldUsedThisTurn = true;
         var currentShape = _state.CurrentPiece.Shape;
 
         if (_state.HoldPiece != null)
@@ -144,7 +165,7 @@ public class GameEngine
             _state.CurrentPiece = new Tetromino(holdShape);
             var matrix = _state.CurrentPiece.CurrentMatrix;
             _state.CurrentCol = (_config.Columns - matrix.GetLength(1)) / 2;
-            _state.CurrentRow = 0;
+            _state.CurrentRow = _config.BufferRows;
         }
         else
         {
@@ -223,15 +244,13 @@ public class GameEngine
             {
                 LevelUp?.Invoke(_state.Level);
 
-                // Level-up reward: remove bottom rows (level / divisor, rounded down)
+                // Level-up reward: calculate rows to remove but don't remove yet
+                // UI will call ExecuteLevelBonusRemoval after animation
                 int rowsToRemove = _state.Level / _config.LevelUpRowDivisor;
                 if (rowsToRemove > 0)
                 {
-                    int removed = _state.Board.RemoveBottomRows(rowsToRemove);
-                    if (removed > 0)
-                    {
-                        LevelUpRowsRemoved?.Invoke(_state.Level, removed);
-                    }
+                    _pendingBonusRows = rowsToRemove;
+                    LevelUpRowsRemoved?.Invoke(_state.Level, rowsToRemove);
                 }
             }
         }

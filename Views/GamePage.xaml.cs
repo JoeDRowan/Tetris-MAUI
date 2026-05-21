@@ -108,6 +108,14 @@ public partial class GamePage : ContentPage
         Application.Current?.CloseWindow(Application.Current.Windows[0]);
     }
 
+    private void OnStatsContinueClicked(object? sender, EventArgs e)
+    {
+        StatsPanel.IsVisible = false;
+        _gameActive = true;
+        ExitGameButton.IsVisible = true;
+        _viewModel.ResumeGame();
+    }
+
     private void OnRedraw()
     {
         MainThread.BeginInvokeOnMainThread(() =>
@@ -197,6 +205,19 @@ public partial class GamePage : ContentPage
             // Wait for level-up message to finish
             await Task.Delay((int)_viewModel.Config.LevelUpFlashDurationMs + 400);
 
+            // Highlight the bottom rows that will be removed
+            _boardDrawable.HighlightBottomRows = rowsRemoved;
+            BoardView.Invalidate();
+
+            // Show highlight for 1.5s
+            await Task.Delay(1500);
+
+            // Actually remove the rows now
+            _boardDrawable.HighlightBottomRows = 0;
+            _viewModel.ExecuteLevelBonusRemoval();
+            BoardView.Invalidate();
+
+            // Show bonus message
             StatusLabel.Text = $"🧹 {rowsRemoved} row{(rowsRemoved > 1 ? "s" : "")} cleared!\nLevel bonus!";
             StatusLabel.TextColor = Color.FromRgb(180, 100, 0);
             StatusLabel.FontSize = 24;
@@ -240,10 +261,12 @@ public partial class GamePage : ContentPage
 
         StatsScoreLabel.Text = $"Score: {_viewModel.Score}";
         StatsLevelLabel.Text = $"Level: {_viewModel.Level}";
-        StatsLinesLabel.Text = $"Lines Cleared: {_viewModel.Lines}";
+        StatsLinesLabel.Text = $"Total Lines: {_viewModel.TotalLines}";
+        StatsTetrisLabel.Text = $"Tetrises: {_viewModel.TetrisCount}";
         StatsTimeLabel.Text = $"Time: {elapsed.Minutes}:{elapsed.Seconds:D2}";
         StatsModeLabel.Text = $"Mode: {modeText}";
         StatsRankLabel.IsVisible = false;
+        StatsContinueButton.IsVisible = _viewModel.EndedVoluntarily;
         StatsPanel.IsVisible = true;
 
         if (_viewModel.CheckHighScore())

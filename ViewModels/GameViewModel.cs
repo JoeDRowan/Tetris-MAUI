@@ -25,11 +25,14 @@ public class GameViewModel : INotifyPropertyChanged
 
     public int Score => State.Score;
     public int Level => State.Level;
-    public int Lines => State.TotalLinesCleared;
+    public int Lines => State.LinesCleared; // Lines cleared this level
     public int LinesRemaining => State.LinesRemaining;
+    public int TotalLines => State.TotalLinesCleared;
+    public int TetrisCount => State.TetrisCount;
     public bool IsGameOver => State.IsGameOver;
     public bool IsPaused => State.IsPaused;
     public string StatusText => State.IsGameOver ? "GAME OVER" : State.IsPaused ? "PAUSED" : "";
+    public bool EndedVoluntarily { get; set; }
 
     public GameViewModel()
     {
@@ -42,6 +45,8 @@ public class GameViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(Score));
             OnPropertyChanged(nameof(Level));
             OnPropertyChanged(nameof(Lines));
+            OnPropertyChanged(nameof(LinesRemaining));
+            OnPropertyChanged(nameof(TetrisCount));
             OnPropertyChanged(nameof(StatusText));
             OnPropertyChanged(nameof(IsGameOver));
             OnPropertyChanged(nameof(IsPaused));
@@ -61,8 +66,17 @@ public class GameViewModel : INotifyPropertyChanged
     }
 
     public void SetMode(GameMode mode) => Config.Mode = mode;
-    public void StartNewGame(IDispatcher dispatcher) => _engine.StartNewGame(dispatcher);
-    public void EndGame() => _engine.EndGame();
+    public void StartNewGame(IDispatcher dispatcher)
+    {
+        EndedVoluntarily = false;
+        _engine.StartNewGame(dispatcher);
+    }
+    public void EndGame()
+    {
+        EndedVoluntarily = true;
+        _engine.EndGame();
+    }
+    public void ResumeGame() => _engine.ContinueGame();
     public void TogglePause() => _engine.TogglePause();
     public void MoveLeft() => _engine.MoveLeft();
     public void MoveRight() => _engine.MoveRight();
@@ -70,6 +84,7 @@ public class GameViewModel : INotifyPropertyChanged
     public void DownPress() => _engine.DownPress();
     public void StopSoftDrop() => _engine.StopSoftDrop();
     public void HoldPiece() => _engine.HoldPiece();
+    public int ExecuteLevelBonusRemoval() => _engine.ExecuteLevelBonusRemoval();
 
     public bool CheckHighScore() => _highScoreService.IsHighScore(State.Score);
 

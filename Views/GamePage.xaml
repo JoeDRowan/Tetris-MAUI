@@ -99,11 +99,15 @@
                 <Label x:Name="StatsScoreLabel" FontSize="16" TextColor="#222"/>
                 <Label x:Name="StatsLevelLabel" FontSize="16" TextColor="#222"/>
                 <Label x:Name="StatsLinesLabel" FontSize="16" TextColor="#222"/>
+                <Label x:Name="StatsTetrisLabel" FontSize="16" TextColor="#222"/>
                 <Label x:Name="StatsTimeLabel" FontSize="16" TextColor="#222"/>
                 <Label x:Name="StatsModeLabel" FontSize="16" TextColor="#222"/>
                 <Label x:Name="StatsRankLabel" FontSize="16" TextColor="#cc6600" FontAttributes="Bold" IsVisible="False"/>
                 <BoxView HeightRequest="1" Color="#99aacc"/>
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
+                    <Button x:Name="StatsContinueButton" Text="Continue" Clicked="OnStatsContinueClicked"
+                            BackgroundColor="#22aa44" TextColor="White" FontAttributes="Bold"
+                            Padding="20,10" IsVisible="False"/>
                     <Button Text="Play Again" Clicked="OnNewGameClicked"
                             BackgroundColor="#2060cc" TextColor="White" FontAttributes="Bold"
                             Padding="20,10"/>
