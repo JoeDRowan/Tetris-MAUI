@@ -38,6 +38,7 @@ public partial class GamePage : ContentPage
         _viewModel.OnLevelUpRowsRemoved += OnLevelUpRowsRemoved;
         _viewModel.OnCascadeClear += OnCascadeClear;
         _viewModel.OnPendingLineClear += OnPendingLineClear;
+        _viewModel.OnGravityNeeded += OnGravityNeeded;
         _viewModel.PropertyChanged += (s, e) =>
         {
             MainThread.BeginInvokeOnMainThread(() =>
@@ -164,15 +165,27 @@ public partial class GamePage : ContentPage
             _boardDrawable.HighlightRows = new List<int>();
             BoardView.Invalidate();
 
-            // Execute the clear
+            // Execute the clear (will fire GravityNeeded)
             if (isCascade)
-            {
                 _viewModel.ExecutePendingCascadeClear();
-            }
             else
-            {
                 _viewModel.ExecutePendingClear();
+        });
+    }
+
+    private void OnGravityNeeded()
+    {
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            // Animate gravity: drop cells one row at a time
+            while (_viewModel.ApplyGravityStep())
+            {
+                BoardView.Invalidate();
+                await Task.Delay(50);
             }
+
+            // After gravity settles, check for cascade
+            _viewModel.CheckForCascade();
         });
     }
 

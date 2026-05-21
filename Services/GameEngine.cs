@@ -259,8 +259,14 @@ public class GameEngine
     }
 
     /// <summary>
+    /// Event fired after lines are cleared, signaling UI to animate gravity.
+    /// UI should call ApplyGravityStep repeatedly, then CheckForCascade when done.
+    /// </summary>
+    public event Action? GravityNeeded;
+
+    /// <summary>
     /// Called by UI after row highlight animation completes.
-    /// Clears the rows, applies gravity, and checks for cascades.
+    /// Clears the rows and signals gravity is needed.
     /// </summary>
     public void ExecutePendingClear()
     {
@@ -273,21 +279,7 @@ public class GameEngine
         }
 
         StateChanged?.Invoke();
-
-        // Apply gravity — may trigger cascades
-        if (_state.Board.ApplyGravity())
-        {
-            var cascadeRows = _state.Board.GetFullRowIndices();
-            if (cascadeRows.Count > 0)
-            {
-                // Fire pending event for cascade rows too
-                PendingLineClear?.Invoke(cascadeRows, true);
-                return; // UI will call ExecutePendingCascadeClear
-            }
-        }
-
-        // No cascade — finish up
-        FinalizeLockAfterClears();
+        GravityNeeded?.Invoke();
     }
 
     /// <summary>
@@ -305,19 +297,33 @@ public class GameEngine
         }
 
         StateChanged?.Invoke();
+        GravityNeeded?.Invoke();
+    }
 
-        // Check for further cascades
-        if (_state.Board.ApplyGravity())
+    /// <summary>
+    /// Drops all floating cells by one row. Returns true if any moved.
+    /// </summary>
+    public bool ApplyGravityStep()
+    {
+        bool moved = _state.Board.ApplyGravityOneStep();
+        if (moved) StateChanged?.Invoke();
+        return moved;
+    }
+
+    /// <summary>
+    /// Called by UI after gravity animation completes. Checks for cascade rows.
+    /// </summary>
+    public void CheckForCascade()
+    {
+        var cascadeRows = _state.Board.GetFullRowIndices();
+        if (cascadeRows.Count > 0)
         {
-            var moreRows = _state.Board.GetFullRowIndices();
-            if (moreRows.Count > 0)
-            {
-                PendingLineClear?.Invoke(moreRows, true);
-                return; // UI will call this method again
-            }
+            PendingLineClear?.Invoke(cascadeRows, true);
         }
-
-        FinalizeLockAfterClears();
+        else
+        {
+            FinalizeLockAfterClears();
+        }
     }
 
     private void FinalizeLockAfterClears()

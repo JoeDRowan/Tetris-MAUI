@@ -25,6 +25,7 @@ public class GameViewModel : INotifyPropertyChanged
     public event Action<int, int>? OnLevelUpRowsRemoved;
     public event Action<int, int>? OnCascadeClear;
     public event Action<List<int>, bool>? OnPendingLineClear;
+    public event Action? OnGravityNeeded;
 
     public int Score => State.Score;
     public int Level => State.Level;
@@ -69,6 +70,7 @@ public class GameViewModel : INotifyPropertyChanged
         _engine.LevelUpRowsRemoved += (level, rows) => OnLevelUpRowsRemoved?.Invoke(level, rows);
         _engine.CascadeClear += (cascadeLevel, lines) => OnCascadeClear?.Invoke(cascadeLevel, lines);
         _engine.PendingLineClear += (rows, isCascade) => OnPendingLineClear?.Invoke(rows, isCascade);
+        _engine.GravityNeeded += () => OnGravityNeeded?.Invoke();
     }
 
     public void SetMode(GameMode mode) => Config.Mode = mode;
@@ -93,6 +95,8 @@ public class GameViewModel : INotifyPropertyChanged
     public int ExecuteLevelBonusRemoval() => _engine.ExecuteLevelBonusRemoval();
     public void ExecutePendingClear() => _engine.ExecutePendingClear();
     public void ExecutePendingCascadeClear() => _engine.ExecutePendingCascadeClear();
+    public bool ApplyGravityStep() => _engine.ApplyGravityStep();
+    public void CheckForCascade() => _engine.CheckForCascade();
 
     public bool CheckHighScore() => _highScoreService.IsHighScore(State.Score);
 

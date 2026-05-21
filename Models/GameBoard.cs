@@ -228,6 +228,32 @@ public class GameBoard
         return moved;
     }
 
+    /// <summary>
+    /// Apply gravity one row at a time: each floating cell drops by one row.
+    /// Returns true if any cells moved. Call repeatedly for animation.
+    /// </summary>
+    public bool ApplyGravityOneStep()
+    {
+        bool moved = false;
+
+        // Process bottom-up so cells don't chain-drop in one call
+        for (int row = TotalRows - 2; row >= 0; row--)
+        {
+            for (int col = 0; col < Columns; col++)
+            {
+                if (_grid[row, col] == null) continue;
+                if (_grid[row + 1, col] == null)
+                {
+                    _grid[row + 1, col] = _grid[row, col];
+                    _grid[row, col] = null;
+                    moved = true;
+                }
+            }
+        }
+
+        return moved;
+    }
+
     private bool IsRowFull(int row)
     {
         for (int col = 0; col < Columns; col++)
