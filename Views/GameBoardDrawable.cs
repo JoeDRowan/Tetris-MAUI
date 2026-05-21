@@ -76,9 +76,19 @@ public class GameBoardDrawable : IDrawable
                     var shape = _state.Board.GetCell(row, col);
                     if (shape != null)
                     {
-                        // Check if cell below is empty (this cell is floating)
-                        var below = _state.Board.GetCell(row + 1, col);
-                        if (below == null)
+                        // Check if ANY cell below in this column is empty
+                        // (meaning this cell will eventually fall with gravity)
+                        bool isFloating = false;
+                        for (int r = row + 1; r < _config.Rows; r++)
+                        {
+                            if (_state.Board.GetCell(r, col) == null)
+                            {
+                                isFloating = true;
+                                break;
+                            }
+                        }
+
+                        if (isFloating)
                         {
                             float x = offsetX + col * cellSize + 1;
                             float y = offsetY + row * cellSize + 1;
