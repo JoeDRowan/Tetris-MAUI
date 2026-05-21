@@ -41,21 +41,43 @@ public class PreviewDrawable : IDrawable
         }
         else if (_nextPieces != null)
         {
-            // Calculate total height of all pieces to vertically center them
+            // Calculate total height using actual occupied rows (skip empty top/bottom rows)
             float totalHeight = 0;
+            var pieceBounds = new List<(TetrominoShape shape, int[,] matrix, int topRow, int bottomRow)>();
             foreach (var shape in _nextPieces)
             {
                 var matrix = TetrominoData.GetRotations(shape)[0];
-                totalHeight += matrix.GetLength(0) * cellSize;
+                int rows = matrix.GetLength(0);
+                int cols = matrix.GetLength(1);
+                int topRow = 0, bottomRow = rows - 1;
+                // Find first occupied row
+                for (int r = 0; r < rows; r++)
+                {
+                    bool hasCell = false;
+                    for (int c = 0; c < cols; c++) { if (matrix[r, c] != 0) { hasCell = true; break; } }
+                    if (hasCell) { topRow = r; break; }
+                }
+                // Find last occupied row
+                for (int r = rows - 1; r >= 0; r--)
+                {
+                    bool hasCell = false;
+                    for (int c = 0; c < cols; c++) { if (matrix[r, c] != 0) { hasCell = true; break; } }
+                    if (hasCell) { bottomRow = r; break; }
+                }
+                int occupiedRows = bottomRow - topRow + 1;
+                totalHeight += occupiedRows * cellSize;
+                pieceBounds.Add((shape, matrix, topRow, bottomRow));
             }
-            totalHeight += (_nextPieces.Length - 1) * padding;
+            totalHeight += (pieceBounds.Count - 1) * padding;
 
             float yOffset = (dirtyRect.Height - totalHeight) / 2;
-            foreach (var shape in _nextPieces)
+            foreach (var (shape, matrix, topRow, bottomRow) in pieceBounds)
             {
-                var matrix = TetrominoData.GetRotations(shape)[0];
-                DrawMatrix(canvas, matrix, shape, dirtyRect.Width, yOffset, cellSize);
-                yOffset += matrix.GetLength(0) * cellSize + padding;
+                // Offset drawing by skipping empty top rows
+                float adjustedY = yOffset - topRow * cellSize;
+                int occupiedRows = bottomRow - topRow + 1;
+                DrawMatrix(canvas, matrix, shape, dirtyRect.Width, adjustedY, cellSize);
+                yOffset += occupiedRows * cellSize + padding;
             }
         }
     }
