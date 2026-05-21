@@ -22,6 +22,7 @@ public class GameViewModel : INotifyPropertyChanged
     public event Action<int>? OnLinesCleared;
     public event Action<int>? OnLevelUp;
     public event Action<int, int>? OnLevelUpRowsRemoved;
+    public event Action<int, int>? OnCascadeClear;
 
     public int Score => State.Score;
     public int Level => State.Level;
@@ -29,6 +30,7 @@ public class GameViewModel : INotifyPropertyChanged
     public int LinesRemaining => State.LinesRemaining;
     public int TotalLines => State.TotalLinesCleared;
     public int TetrisCount => State.TetrisCount;
+    public int CascadeCount => State.CascadeCount;
     public bool IsGameOver => State.IsGameOver;
     public bool IsPaused => State.IsPaused;
     public string StatusText => State.IsGameOver ? "GAME OVER" : State.IsPaused ? "PAUSED" : "";
@@ -63,6 +65,7 @@ public class GameViewModel : INotifyPropertyChanged
         _engine.LinesCleared += (lines) => OnLinesCleared?.Invoke(lines);
         _engine.LevelUp += (level) => OnLevelUp?.Invoke(level);
         _engine.LevelUpRowsRemoved += (level, rows) => OnLevelUpRowsRemoved?.Invoke(level, rows);
+        _engine.CascadeClear += (cascadeLevel, lines) => OnCascadeClear?.Invoke(cascadeLevel, lines);
     }
 
     public void SetMode(GameMode mode) => Config.Mode = mode;

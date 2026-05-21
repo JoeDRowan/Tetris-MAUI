@@ -172,6 +172,43 @@ public class GameBoard
         return removed;
     }
 
+    /// <summary>
+    /// Apply per-cell gravity: each cell falls as far as it can independently.
+    /// Returns true if any cells moved.
+    /// </summary>
+    public bool ApplyGravity()
+    {
+        bool moved = false;
+
+        // Process columns independently, bottom-up
+        for (int col = 0; col < Columns; col++)
+        {
+            for (int row = TotalRows - 2; row >= 0; row--)
+            {
+                if (_grid[row, col] == null) continue;
+
+                // Find lowest empty cell below this one
+                int targetRow = row;
+                for (int below = row + 1; below < TotalRows; below++)
+                {
+                    if (_grid[below, col] == null)
+                        targetRow = below;
+                    else
+                        break;
+                }
+
+                if (targetRow != row)
+                {
+                    _grid[targetRow, col] = _grid[row, col];
+                    _grid[row, col] = null;
+                    moved = true;
+                }
+            }
+        }
+
+        return moved;
+    }
+
     private bool IsRowFull(int row)
     {
         for (int col = 0; col < Columns; col++)

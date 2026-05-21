@@ -31,6 +31,7 @@ public class GameEngine
     public event Action<int>? LinesCleared;
     public event Action<int>? LevelUp;
     public event Action<int, int>? LevelUpRowsRemoved; // (newLevel, rowsRemoved)
+    public event Action<int, int>? CascadeClear; // (cascadeLevel, linesCleared)
 
     public GameEngine(GameConfig config)
     {
@@ -239,6 +240,25 @@ public class GameEngine
             _state.AddLinesCleared(cleared);
             _currentDropInterval = _config.GetDropIntervalMs(_state.Level);
             LinesCleared?.Invoke(cleared);
+
+            // Apply per-cell gravity and check for cascade clears
+            int cascadeLevel = 0;
+            while (_state.Board.ApplyGravity())
+            {
+                int cascadeCleared = _state.Board.ClearLines();
+                if (cascadeCleared > 0)
+                {
+                    cascadeLevel++;
+                    _state.CascadeCount++;
+                    _state.AddLinesCleared(cascadeCleared);
+                    _currentDropInterval = _config.GetDropIntervalMs(_state.Level);
+                    CascadeClear?.Invoke(cascadeLevel, cascadeCleared);
+                }
+                else
+                {
+                    break;
+                }
+            }
 
             if (_state.Level > previousLevel)
             {

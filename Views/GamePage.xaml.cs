@@ -35,6 +35,7 @@ public partial class GamePage : ContentPage
         _viewModel.OnLinesCleared += OnLinesCleared;
         _viewModel.OnLevelUp += OnLevelUp;
         _viewModel.OnLevelUpRowsRemoved += OnLevelUpRowsRemoved;
+        _viewModel.OnCascadeClear += OnCascadeClear;
         _viewModel.PropertyChanged += (s, e) =>
         {
             MainThread.BeginInvokeOnMainThread(() =>
@@ -178,6 +179,43 @@ public partial class GamePage : ContentPage
         }
     }
 
+    private void OnCascadeClear(int cascadeLevel, int linesCleared)
+    {
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            // Brief pause to let player see gravity effect
+            await Task.Delay(400);
+
+            string emoji = cascadeLevel >= 3 ? "💥" : cascadeLevel >= 2 ? "⚡" : "✨";
+            StatusLabel.Text = $"{emoji} CASCADE ×{cascadeLevel}! {emoji}\n{linesCleared} line{(linesCleared > 1 ? "s" : "")} cleared!";
+            StatusLabel.TextColor = Color.FromRgb(200, 60, 200);
+            StatusLabel.FontSize = 28;
+            StatusBorder.IsVisible = true;
+            StatusBorder.Opacity = 0;
+
+            // Flash board to show cascade
+            for (int i = 0; i < 3; i++)
+            {
+                BoardView.Opacity = 0.5;
+                StatusBorder.Opacity = i % 2 == 0 ? 0.95 : 0.5;
+                await Task.Delay(100);
+                BoardView.Opacity = 1.0;
+                await Task.Delay(100);
+            }
+            StatusBorder.Opacity = 0.95;
+
+            await Task.Delay(1200);
+
+            if (StatusLabel.Text?.Contains("CASCADE") == true)
+            {
+                StatusBorder.IsVisible = false;
+                StatusLabel.TextColor = Color.FromRgb(34, 34, 34);
+                StatusLabel.FontSize = 32;
+                StatusBorder.Opacity = 0.95;
+            }
+        });
+    }
+
     private void OnLevelUp(int newLevel)
     {
         MainThread.BeginInvokeOnMainThread(async () =>
@@ -278,7 +316,7 @@ public partial class GamePage : ContentPage
         StatsScoreLabel.Text = $"Score: {_viewModel.Score}";
         StatsLevelLabel.Text = $"Level: {_viewModel.Level}";
         StatsLinesLabel.Text = $"Total Lines: {_viewModel.TotalLines}";
-        StatsTetrisLabel.Text = $"Tetrises: {_viewModel.TetrisCount}";
+        StatsTetrisLabel.Text = $"Tetrises: {_viewModel.TetrisCount}  |  Cascades: {_viewModel.CascadeCount}";
         StatsTimeLabel.Text = $"Time: {elapsed.Minutes}:{elapsed.Seconds:D2}";
         StatsModeLabel.Text = $"Mode: {modeText}";
         StatsRankLabel.IsVisible = false;
