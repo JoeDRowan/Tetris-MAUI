@@ -189,7 +189,7 @@ public partial class GamePage : ContentPage
             while (_viewModel.ApplyGravityStep())
             {
                 BoardView.Invalidate();
-                await Task.Delay(120);
+                await Task.Delay(180);
             }
 
             // Pause at landing so player sees final position
@@ -199,7 +199,7 @@ public partial class GamePage : ContentPage
             BoardView.Invalidate();
 
             // Pause before checking for new filled rows
-            await Task.Delay(500);
+            await Task.Delay(800);
 
             // Check if the fallen blocks formed new complete rows
             _viewModel.CheckForCascade();
