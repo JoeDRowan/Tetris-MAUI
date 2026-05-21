@@ -25,7 +25,7 @@ public class PreviewDrawable : IDrawable
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        float cellSize = _isHoldPanel ? _config.CellSize * 0.7f : _config.CellSize * 0.6f;
+        float cellSize = _isHoldPanel ? _config.CellSize * 0.7f : _config.CellSize * 0.7f;
         float padding = _isHoldPanel ? 10f : 4f;
 
         // Background
@@ -41,8 +41,8 @@ public class PreviewDrawable : IDrawable
         }
         else if (_nextPieces != null)
         {
-            // Start from top with small margin, fixed spacing between pieces
-            float yOffset = 6f;
+            // Start with offset to push pieces down from top
+            float yOffset = 18f;
             float piecePadding = 10f;
             foreach (var shape in _nextPieces)
             {
