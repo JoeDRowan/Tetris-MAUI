@@ -41,7 +41,16 @@ public class PreviewDrawable : IDrawable
         }
         else if (_nextPieces != null)
         {
-            float yOffset = padding;
+            // Calculate total height of all pieces to vertically center them
+            float totalHeight = 0;
+            foreach (var shape in _nextPieces)
+            {
+                var matrix = TetrominoData.GetRotations(shape)[0];
+                totalHeight += matrix.GetLength(0) * cellSize;
+            }
+            totalHeight += (_nextPieces.Length - 1) * padding;
+
+            float yOffset = (dirtyRect.Height - totalHeight) / 2;
             foreach (var shape in _nextPieces)
             {
                 var matrix = TetrominoData.GetRotations(shape)[0];
