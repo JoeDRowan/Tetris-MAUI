@@ -66,7 +66,7 @@ public class PreviewDrawable : IDrawable
         if (shape == null) return;
 
         var matrix = TetrominoData.GetRotations(shape.Value)[0];
-        float yOffset = (bounds.Height - matrix.GetLength(0) * cellSize) / 2;
+        float yOffset = (bounds.Height - matrix.GetLength(0) * cellSize) / 2 + 6;
         DrawMatrix(canvas, matrix, shape.Value, bounds.Width, yOffset, cellSize);
     }
 
