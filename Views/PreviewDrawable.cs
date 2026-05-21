@@ -25,7 +25,7 @@ public class PreviewDrawable : IDrawable
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        float cellSize = _isHoldPanel ? _config.CellSize * 0.7f : _config.CellSize * 0.7f;
+        float cellSize = _isHoldPanel ? _config.CellSize * 0.7f : _config.CellSize * 0.6f;
         float padding = _isHoldPanel ? 10f : 4f;
 
         // Background
@@ -41,21 +41,14 @@ public class PreviewDrawable : IDrawable
         }
         else if (_nextPieces != null)
         {
-            // Use full matrix height (not trimmed) and more padding between pieces
-            float totalHeight = 0;
-            foreach (var shape in _nextPieces)
-            {
-                var matrix = TetrominoData.GetRotations(shape)[0];
-                totalHeight += matrix.GetLength(0) * cellSize;
-            }
-            totalHeight += (_nextPieces.Length - 1) * 12f;
-
-            float yOffset = (dirtyRect.Height - totalHeight) / 2;
+            // Start from top with small margin, fixed spacing between pieces
+            float yOffset = 6f;
+            float piecePadding = 10f;
             foreach (var shape in _nextPieces)
             {
                 var matrix = TetrominoData.GetRotations(shape)[0];
                 DrawMatrix(canvas, matrix, shape, dirtyRect.Width, yOffset, cellSize);
-                yOffset += matrix.GetLength(0) * cellSize + 12f;
+                yOffset += matrix.GetLength(0) * cellSize + piecePadding;
             }
         }
     }
