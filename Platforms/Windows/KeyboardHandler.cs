@@ -48,6 +48,7 @@ public static class KeyboardHandler
         Windows.System.VirtualKey.Q => "q",
         Windows.System.VirtualKey.S => "s",
         Windows.System.VirtualKey.W => "w",
+        Windows.System.VirtualKey.Enter => "enter",
         _ => null
     };
 }

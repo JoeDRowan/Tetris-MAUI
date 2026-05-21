@@ -463,6 +463,7 @@ public partial class GamePage : ContentPage
                 if (_gameActive) _viewModel.EndGame();
                 return true;
             case "n":
+            case "enter":
                 OnNewGameClicked(null, EventArgs.Empty);
                 return true;
         }
