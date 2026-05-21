@@ -80,12 +80,20 @@ public class GameBoardDrawable : IDrawable
                         var below = _state.Board.GetCell(row + 1, col);
                         if (below == null)
                         {
-                            float x = offsetX + col * cellSize;
-                            float y = offsetY + row * cellSize;
-                            canvas.Alpha = 0.5f;
-                            canvas.FillColor = Color.FromRgb(255, 255, 150);
-                            canvas.FillRoundedRectangle(x + 1, y + 1, cellSize - 2, cellSize - 2, 2);
+                            float x = offsetX + col * cellSize + 1;
+                            float y = offsetY + row * cellSize + 1;
+                            float size = cellSize - 2;
+
+                            // Bright overlay
+                            canvas.Alpha = 0.6f;
+                            canvas.FillColor = Color.FromRgb(255, 255, 100);
+                            canvas.FillRoundedRectangle(x, y, size, size, 2);
+
+                            // Bold white border to make it pop
                             canvas.Alpha = 1f;
+                            canvas.StrokeColor = Colors.White;
+                            canvas.StrokeSize = 2.5f;
+                            canvas.DrawRoundedRectangle(x, y, size, size, 2);
                         }
                     }
                 }
