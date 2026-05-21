@@ -40,7 +40,7 @@
                 <Label Text="NEXT" FontSize="12" TextColor="#1a3070" HorizontalOptions="Center" FontAttributes="Bold"/>
                 <Border Stroke="#4466aa" StrokeThickness="2" StrokeShape="RoundRectangle 6"
                         BackgroundColor="#d8e8ff" Padding="4" HorizontalOptions="Center">
-                    <GraphicsView x:Name="NextView" WidthRequest="104" HeightRequest="130"/>
+                    <GraphicsView x:Name="NextView" WidthRequest="104" HeightRequest="155"/>
                 </Border>
 
                 <BoxView HeightRequest="1" Color="#7799bb" Margin="0,8"/>
