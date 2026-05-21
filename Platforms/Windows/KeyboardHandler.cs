@@ -40,12 +40,14 @@ public static class KeyboardHandler
         Windows.System.VirtualKey.Space => "space",
         Windows.System.VirtualKey.Escape => "escape",
         Windows.System.VirtualKey.A => "a",
+        Windows.System.VirtualKey.C => "c",
         Windows.System.VirtualKey.D => "d",
-        Windows.System.VirtualKey.W => "w",
-        Windows.System.VirtualKey.S => "s",
-        Windows.System.VirtualKey.P => "p",
         Windows.System.VirtualKey.E => "e",
         Windows.System.VirtualKey.N => "n",
+        Windows.System.VirtualKey.P => "p",
+        Windows.System.VirtualKey.Q => "q",
+        Windows.System.VirtualKey.S => "s",
+        Windows.System.VirtualKey.W => "w",
         _ => null
     };
 }
