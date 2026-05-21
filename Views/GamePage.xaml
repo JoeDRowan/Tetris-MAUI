@@ -105,13 +105,13 @@
                 <Label x:Name="StatsRankLabel" FontSize="16" TextColor="#cc6600" FontAttributes="Bold" IsVisible="False"/>
                 <BoxView HeightRequest="1" Color="#99aacc"/>
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
-                    <Button x:Name="StatsContinueButton" Text="Continue" Clicked="OnStatsContinueClicked"
+                    <Button x:Name="StatsContinueButton" Text="Continue (C)" Clicked="OnStatsContinueClicked"
                             BackgroundColor="#22aa44" TextColor="White" FontAttributes="Bold"
                             Padding="20,10" IsVisible="False"/>
-                    <Button Text="Play Again" Clicked="OnPlayAgainClicked"
+                    <Button Text="Play Again (N)" Clicked="OnPlayAgainClicked"
                             BackgroundColor="#2060cc" TextColor="White" FontAttributes="Bold"
                             Padding="20,10"/>
-                    <Button Text="Exit" Clicked="OnStatsExitClicked"
+                    <Button Text="Exit (Q)" Clicked="OnStatsExitClicked"
                             BackgroundColor="#666" TextColor="White" FontAttributes="Bold"
                             Padding="20,10"/>
                 </HorizontalStackLayout>

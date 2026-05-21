@@ -1,5 +1,6 @@
 namespace Tetris.Views;
 
+using System.Collections.Generic;
 using Microsoft.Maui.Graphics;
 using Tetris.Config;
 using Tetris.Models;
@@ -12,6 +13,7 @@ public class GameBoardDrawable : IDrawable
     private readonly GameConfig _config;
     private GameState? _state;
     public int HighlightBottomRows { get; set; }
+    public List<int> HighlightRows { get; set; } = new();
 
     public GameBoardDrawable(GameConfig config)
     {
@@ -89,6 +91,19 @@ public class GameBoardDrawable : IDrawable
             for (int r = 0; r < HighlightBottomRows; r++)
             {
                 int row = _config.Rows - 1 - r;
+                float y = offsetY + row * cellSize;
+                canvas.FillRectangle(offsetX, y, boardWidth, cellSize);
+            }
+            canvas.Alpha = 1f;
+        }
+
+        // Highlight specific rows being cleared
+        if (HighlightRows.Count > 0)
+        {
+            canvas.Alpha = 0.6f;
+            canvas.FillColor = Color.FromRgb(255, 255, 100);
+            foreach (int row in HighlightRows)
+            {
                 float y = offsetY + row * cellSize;
                 canvas.FillRectangle(offsetX, y, boardWidth, cellSize);
             }

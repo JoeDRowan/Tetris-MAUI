@@ -1,5 +1,6 @@
 namespace Tetris.ViewModels;
 
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Tetris.Config;
@@ -23,6 +24,7 @@ public class GameViewModel : INotifyPropertyChanged
     public event Action<int>? OnLevelUp;
     public event Action<int, int>? OnLevelUpRowsRemoved;
     public event Action<int, int>? OnCascadeClear;
+    public event Action<List<int>, bool>? OnPendingLineClear;
 
     public int Score => State.Score;
     public int Level => State.Level;
@@ -66,6 +68,7 @@ public class GameViewModel : INotifyPropertyChanged
         _engine.LevelUp += (level) => OnLevelUp?.Invoke(level);
         _engine.LevelUpRowsRemoved += (level, rows) => OnLevelUpRowsRemoved?.Invoke(level, rows);
         _engine.CascadeClear += (cascadeLevel, lines) => OnCascadeClear?.Invoke(cascadeLevel, lines);
+        _engine.PendingLineClear += (rows, isCascade) => OnPendingLineClear?.Invoke(rows, isCascade);
     }
 
     public void SetMode(GameMode mode) => Config.Mode = mode;
@@ -88,6 +91,8 @@ public class GameViewModel : INotifyPropertyChanged
     public void StopSoftDrop() => _engine.StopSoftDrop();
     public void HoldPiece() => _engine.HoldPiece();
     public int ExecuteLevelBonusRemoval() => _engine.ExecuteLevelBonusRemoval();
+    public void ExecutePendingClear() => _engine.ExecutePendingClear();
+    public void ExecutePendingCascadeClear() => _engine.ExecutePendingCascadeClear();
 
     public bool CheckHighScore() => _highScoreService.IsHighScore(State.Score);
 

@@ -1,5 +1,6 @@
 namespace Tetris.Services;
 
+using System.Collections.Generic;
 using Tetris.Config;
 using Tetris.Models;
 
@@ -227,73 +228,139 @@ public class GameEngine
         StateChanged?.Invoke();
     }
 
+    private int _previousLevelAtLock;
+
+    /// <summary>
+    /// Event fired when rows are about to be cleared. Contains visible row indices and whether it's a cascade.
+    /// UI should highlight these, then call ExecutePendingClear() or ExecutePendingCascadeClear().
+    /// </summary>
+    public event Action<List<int>, bool>? PendingLineClear;
+
     private void LockCurrentPiece()
     {
         if (_state.CurrentPiece == null) return;
 
         _state.Board.LockPiece(_state.CurrentPiece.Shape, _state.CurrentPiece.CurrentMatrix, _state.CurrentRow, _state.CurrentCol);
 
-        int previousLevel = _state.Level;
+        _previousLevelAtLock = _state.Level;
+        var fullRows = _state.Board.GetFullRowIndices();
+
+        if (fullRows.Count > 0)
+        {
+            // Pause game while UI highlights the rows
+            _gameTimer?.Stop();
+            PendingLineClear?.Invoke(fullRows, false);
+            // UI will call ExecutePendingClear() after highlight animation
+        }
+        else
+        {
+            FinalizeLock();
+        }
+    }
+
+    /// <summary>
+    /// Called by UI after row highlight animation completes.
+    /// Clears the rows, applies gravity, and checks for cascades.
+    /// </summary>
+    public void ExecutePendingClear()
+    {
         int cleared = _state.Board.ClearLines();
         if (cleared > 0)
         {
             _state.AddLinesCleared(cleared);
             _currentDropInterval = _config.GetDropIntervalMs(_state.Level);
             LinesCleared?.Invoke(cleared);
+        }
 
-            // Apply per-cell gravity and check for cascade clears
-            int cascadeLevel = 0;
-            while (_state.Board.ApplyGravity())
+        StateChanged?.Invoke();
+
+        // Apply gravity — may trigger cascades
+        if (_state.Board.ApplyGravity())
+        {
+            var cascadeRows = _state.Board.GetFullRowIndices();
+            if (cascadeRows.Count > 0)
             {
-                int cascadeCleared = _state.Board.ClearLines();
-                if (cascadeCleared > 0)
-                {
-                    cascadeLevel++;
-                    _state.CascadeCount++;
-                    _state.AddLinesCleared(cascadeCleared);
-                    _currentDropInterval = _config.GetDropIntervalMs(_state.Level);
-                    CascadeClear?.Invoke(cascadeLevel, cascadeCleared);
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if (_state.Level > previousLevel)
-            {
-                LevelUp?.Invoke(_state.Level);
-
-                // Level-up reward: calculate rows to remove but don't remove yet
-                // UI will call ExecuteLevelBonusRemoval after animation
-                int rowsToRemove = _state.Level / _config.LevelUpRowDivisor;
-                if (rowsToRemove > 0)
-                {
-                    _pendingBonusRows = rowsToRemove;
-                    LevelUpRowsRemoved?.Invoke(_state.Level, rowsToRemove);
-                }
+                // Fire pending event for cascade rows too
+                PendingLineClear?.Invoke(cascadeRows, true);
+                return; // UI will call ExecutePendingCascadeClear
             }
         }
 
+        // No cascade — finish up
+        FinalizeLockAfterClears();
+    }
+
+    /// <summary>
+    /// Called by UI after cascade row highlight animation completes.
+    /// </summary>
+    public void ExecutePendingCascadeClear()
+    {
+        int cascadeCleared = _state.Board.ClearLines();
+        if (cascadeCleared > 0)
+        {
+            _state.CascadeCount++;
+            _state.AddLinesCleared(cascadeCleared);
+            _currentDropInterval = _config.GetDropIntervalMs(_state.Level);
+            CascadeClear?.Invoke(_state.CascadeCount, cascadeCleared);
+        }
+
+        StateChanged?.Invoke();
+
+        // Check for further cascades
+        if (_state.Board.ApplyGravity())
+        {
+            var moreRows = _state.Board.GetFullRowIndices();
+            if (moreRows.Count > 0)
+            {
+                PendingLineClear?.Invoke(moreRows, true);
+                return; // UI will call this method again
+            }
+        }
+
+        FinalizeLockAfterClears();
+    }
+
+    private void FinalizeLockAfterClears()
+    {
+        if (_state.Level > _previousLevelAtLock)
+        {
+            LevelUp?.Invoke(_state.Level);
+
+            int rowsToRemove = _state.Level / _config.LevelUpRowDivisor;
+            if (rowsToRemove > 0)
+            {
+                _pendingBonusRows = rowsToRemove;
+                LevelUpRowsRemoved?.Invoke(_state.Level, rowsToRemove);
+            }
+        }
+
+        FinalizeLock();
+    }
+
+    private void FinalizeLock()
+    {
         // Check game over
         if (_state.Board.IsBufferOccupied())
         {
             _state.IsGameOver = true;
-            _gameTimer?.Stop();
             GameOver?.Invoke();
             return;
         }
 
         if (!_state.SpawnNextPiece())
         {
-            _gameTimer?.Stop();
             GameOver?.Invoke();
             return;
         }
 
-        _dropAccumulator = 0;
+        // Reset fast drop
         _fastDropActive = false;
         _downPressCount = 0;
+        _dropAccumulator = 0;
+
+        // Resume game timer
+        _gameTimer?.Start();
+        StateChanged?.Invoke();
     }
 
     private bool TryMove(int dRow, int dCol)

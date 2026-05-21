@@ -1,5 +1,6 @@
 namespace Tetris.Models;
 
+using System.Collections.Generic;
 using Tetris.Config;
 
 /// <summary>
@@ -170,6 +171,24 @@ public class GameBoard
             }
         }
         return removed;
+    }
+
+    /// <summary>
+    /// Returns visible row indices (0-based from top of visible area) of full rows.
+    /// </summary>
+    public List<int> GetFullRowIndices()
+    {
+        var indices = new List<int>();
+        for (int row = 0; row < TotalRows; row++)
+        {
+            if (IsRowFull(row))
+            {
+                int visibleRow = row - _config.BufferRows;
+                if (visibleRow >= 0)
+                    indices.Add(visibleRow);
+            }
+        }
+        return indices;
     }
 
     /// <summary>

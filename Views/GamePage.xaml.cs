@@ -1,5 +1,6 @@
 namespace Tetris.Views;
 
+using System.Collections.Generic;
 using Tetris.Config;
 using Tetris.ViewModels;
 
@@ -36,6 +37,7 @@ public partial class GamePage : ContentPage
         _viewModel.OnLevelUp += OnLevelUp;
         _viewModel.OnLevelUpRowsRemoved += OnLevelUpRowsRemoved;
         _viewModel.OnCascadeClear += OnCascadeClear;
+        _viewModel.OnPendingLineClear += OnPendingLineClear;
         _viewModel.PropertyChanged += (s, e) =>
         {
             MainThread.BeginInvokeOnMainThread(() =>
@@ -144,6 +146,33 @@ public partial class GamePage : ContentPage
             BoardView.Invalidate();
             NextView.Invalidate();
             HoldView.Invalidate();
+        });
+    }
+
+    private void OnPendingLineClear(List<int> rowIndices, bool isCascade)
+    {
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            // Highlight the rows about to be cleared
+            _boardDrawable.HighlightRows = rowIndices;
+            BoardView.Invalidate();
+
+            // Hold highlight for 400ms
+            await Task.Delay(400);
+
+            // Remove highlight
+            _boardDrawable.HighlightRows = new List<int>();
+            BoardView.Invalidate();
+
+            // Execute the clear
+            if (isCascade)
+            {
+                _viewModel.ExecutePendingCascadeClear();
+            }
+            else
+            {
+                _viewModel.ExecutePendingClear();
+            }
         });
     }
 
@@ -347,6 +376,25 @@ public partial class GamePage : ContentPage
     public bool HandleKeyDown(string key)
     {
         if (_dialogOpen) return false;
+
+        // Stats overlay hotkeys
+        if (StatsPanel.IsVisible)
+        {
+            switch (key.ToLowerInvariant())
+            {
+                case "c":
+                    if (StatsContinueButton.IsVisible)
+                        OnStatsContinueClicked(null, EventArgs.Empty);
+                    return true;
+                case "n":
+                    OnPlayAgainClicked(null, EventArgs.Empty);
+                    return true;
+                case "q":
+                    OnStatsExitClicked(null, EventArgs.Empty);
+                    return true;
+            }
+            return false;
+        }
 
         switch (key.ToLowerInvariant())
         {
