@@ -14,6 +14,7 @@ public class GameBoardDrawable : IDrawable
     private GameState? _state;
     public int HighlightBottomRows { get; set; }
     public List<int> HighlightRows { get; set; } = new();
+    public bool ShowFallingHighlight { get; set; }
 
     public GameBoardDrawable(GameConfig config)
     {
@@ -61,6 +62,32 @@ public class GameBoardDrawable : IDrawable
                 if (shape != null)
                 {
                     DrawCell(canvas, offsetX, offsetY, row, col, cellSize, _config.PieceColors[shape.Value], 1f);
+                }
+            }
+        }
+
+        // Highlight floating cells during gravity animation
+        if (ShowFallingHighlight)
+        {
+            for (int row = 0; row < _config.Rows - 1; row++)
+            {
+                for (int col = 0; col < _config.Columns; col++)
+                {
+                    var shape = _state.Board.GetCell(row, col);
+                    if (shape != null)
+                    {
+                        // Check if cell below is empty (this cell is floating)
+                        var below = _state.Board.GetCell(row + 1, col);
+                        if (below == null)
+                        {
+                            float x = offsetX + col * cellSize;
+                            float y = offsetY + row * cellSize;
+                            canvas.Alpha = 0.5f;
+                            canvas.FillColor = Color.FromRgb(255, 255, 150);
+                            canvas.FillRoundedRectangle(x + 1, y + 1, cellSize - 2, cellSize - 2, 2);
+                            canvas.Alpha = 1f;
+                        }
+                    }
                 }
             }
         }

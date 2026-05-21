@@ -177,12 +177,17 @@ public partial class GamePage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(async () =>
         {
+            _boardDrawable.ShowFallingHighlight = true;
+
             // Animate gravity: drop cells one row at a time
             while (_viewModel.ApplyGravityStep())
             {
                 BoardView.Invalidate();
-                await Task.Delay(50);
+                await Task.Delay(70);
             }
+
+            _boardDrawable.ShowFallingHighlight = false;
+            BoardView.Invalidate();
 
             // After gravity settles, check for cascade
             _viewModel.CheckForCascade();
