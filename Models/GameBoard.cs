@@ -99,7 +99,8 @@ public class GameBoard
     }
 
     /// <summary>
-    /// Clear completed lines and return the number cleared.
+    /// Clear completed lines by removing cells (not shifting rows down).
+    /// Per-cell gravity will handle dropping cells afterward.
     /// </summary>
     public int ClearLines()
     {
@@ -109,9 +110,12 @@ public class GameBoard
         {
             if (IsRowFull(row))
             {
-                RemoveRow(row);
+                // Just null out the row — gravity will drop cells
+                for (int col = 0; col < Columns; col++)
+                {
+                    _grid[row, col] = null;
+                }
                 linesCleared++;
-                row++; // Re-check this row since rows shifted down
             }
         }
 
