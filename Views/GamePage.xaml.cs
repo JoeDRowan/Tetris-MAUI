@@ -178,28 +178,28 @@ public partial class GamePage : ContentPage
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             // Pause after row removal so player sees the gap
-            await Task.Delay(300);
+            await Task.Delay(500);
 
             // Highlight orphaned blocks before they start falling
             _boardDrawable.ShowFallingHighlight = true;
             BoardView.Invalidate();
-            await Task.Delay(500);
+            await Task.Delay(700);
 
             // Animate gravity: drop cells one row at a time
             while (_viewModel.ApplyGravityStep())
             {
                 BoardView.Invalidate();
-                await Task.Delay(80);
+                await Task.Delay(120);
             }
 
             // Pause at landing so player sees final position
-            await Task.Delay(400);
+            await Task.Delay(600);
 
             _boardDrawable.ShowFallingHighlight = false;
             BoardView.Invalidate();
 
             // Pause before checking for new filled rows
-            await Task.Delay(300);
+            await Task.Delay(500);
 
             // Check if the fallen blocks formed new complete rows
             _viewModel.CheckForCascade();
