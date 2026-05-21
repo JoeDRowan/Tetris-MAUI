@@ -177,28 +177,23 @@ public partial class GamePage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            // Check if gravity has anything to do before animating
-            // Test by doing one step - if nothing moves, skip animation entirely
-            if (!_viewModel.ApplyGravityStep())
+            // Check if gravity has anything to do (non-destructive check)
+            if (!_viewModel.HasFloatingCells())
             {
                 // No floating cells — go straight to cascade check
                 _viewModel.CheckForCascade();
                 return;
             }
 
-            // Something moved — show the full animation
-            // First undo that step by re-rendering, then start proper sequence
-            BoardView.Invalidate();
-
             // Pause after row removal so player sees the gap
             await Task.Delay(500);
 
-            // Highlight orphaned blocks before they continue falling
+            // Highlight orphaned blocks before they start falling
             _boardDrawable.ShowFallingHighlight = true;
             BoardView.Invalidate();
             await Task.Delay(700);
 
-            // Continue dropping (first step already happened above)
+            // Animate gravity: drop cells one row at a time
             while (_viewModel.ApplyGravityStep())
             {
                 BoardView.Invalidate();

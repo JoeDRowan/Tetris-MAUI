@@ -258,6 +258,23 @@ public class GameBoard
         return moved;
     }
 
+    /// <summary>
+    /// Check if any cells have empty space below them (would fall with gravity).
+    /// Does NOT modify the board.
+    /// </summary>
+    public bool HasFloatingCells()
+    {
+        for (int row = TotalRows - 2; row >= 0; row--)
+        {
+            for (int col = 0; col < Columns; col++)
+            {
+                if (_grid[row, col] != null && _grid[row + 1, col] == null)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     private bool IsRowFull(int row)
     {
         for (int col = 0; col < Columns; col++)

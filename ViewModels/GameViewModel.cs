@@ -96,6 +96,7 @@ public class GameViewModel : INotifyPropertyChanged
     public void ExecutePendingClear() => _engine.ExecutePendingClear();
     public void ExecutePendingCascadeClear() => _engine.ExecutePendingCascadeClear();
     public bool ApplyGravityStep() => _engine.ApplyGravityStep();
+    public bool HasFloatingCells() => _engine.HasFloatingCells();
     public void CheckForCascade() => _engine.CheckForCascade();
 
     public bool CheckHighScore() => _highScoreService.IsHighScore(State.Score);

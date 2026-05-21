@@ -311,6 +311,11 @@ public class GameEngine
     }
 
     /// <summary>
+    /// Check if any cells would fall. Does NOT modify board.
+    /// </summary>
+    public bool HasFloatingCells() => _state.Board.HasFloatingCells();
+
+    /// <summary>
     /// Called by UI after gravity animation completes. Checks for cascade rows.
     /// </summary>
     public void CheckForCascade()
