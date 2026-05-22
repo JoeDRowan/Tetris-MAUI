@@ -13,6 +13,7 @@ public partial class GamePage : ContentPage
     private bool _gameActive;
     private bool _dialogOpen;
     private CancellationTokenSource? _holdDelayCts;
+    private bool _inCascadeSequence;
 
     public GamePage()
     {
@@ -73,6 +74,20 @@ public partial class GamePage : ContentPage
         ProLabel.FontAttributes = isPro ? FontAttributes.Bold : FontAttributes.None;
         HoldLabel.IsVisible = !isPro;
         HoldView.IsVisible = !isPro;
+        HoldBorder.IsVisible = !isPro;
+
+        // If switching to Pro mid-game, clear the held piece
+        if (isPro && _gameActive)
+        {
+            _viewModel.State.HoldPiece = null;
+            _holdDrawable.UpdateHold(null);
+            HoldView.Invalidate();
+        }
+
+        // Grey out "Space Hold" in bottom bar for Pro mode
+        HoldKeyLabel.TextColor = isPro ? Color.FromRgb(170, 170, 170) : Color.FromRgb(26, 48, 112);
+        HoldKeyBorder.BackgroundColor = isPro ? Color.FromRgb(220, 220, 220) : Color.FromRgb(184, 200, 232);
+        HoldKeyBorder.Stroke = isPro ? Color.FromRgb(180, 180, 180) : Color.FromRgb(102, 136, 170);
 
         // Color scheme change for Pro mode
         if (isPro)
@@ -97,6 +112,7 @@ public partial class GamePage : ContentPage
         StatsPanel.IsVisible = false;
         NewGameButton.IsVisible = true;
         ExitGameButton.IsVisible = true;
+        // Mode switch stays enabled during game
         _gameActive = true;
         _highScoreSaved = false;
         _viewModel.StartNewGame(Dispatcher);
@@ -157,6 +173,9 @@ public partial class GamePage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(async () =>
         {
+            if (isCascade)
+                _inCascadeSequence = true;
+
             // Highlight the rows about to be cleared
             _boardDrawable.HighlightRows = rowIndices;
             BoardView.Invalidate();
@@ -185,11 +204,21 @@ public partial class GamePage : ContentPage
             {
                 // No floating cells — go straight to cascade check
                 _viewModel.CheckForCascade();
+                _inCascadeSequence = false;
                 return;
             }
 
             // Pause after row removal so player sees the gap
             await Task.Delay(500);
+
+            // Show message only during cascade sequences (not normal first clear)
+            if (_inCascadeSequence)
+            {
+                StatusLabel.Text = "⬇️ Incoming!";
+                StatusLabel.TextColor = Color.FromRgb(200, 150, 0);
+                StatusLabel.FontSize = 28;
+                StatusBorder.IsVisible = true;
+            }
 
             // Highlight orphaned blocks before they start falling
             _boardDrawable.ShowFallingHighlight = true;
@@ -208,6 +237,13 @@ public partial class GamePage : ContentPage
 
             _boardDrawable.ShowFallingHighlight = false;
             BoardView.Invalidate();
+
+            // Clear the message
+            if (StatusLabel.Text == "⬇️ Incoming!")
+            {
+                StatusBorder.IsVisible = false;
+                StatusLabel.FontSize = 32;
+            }
 
             // Pause before checking for new filled rows
             await Task.Delay(800);
@@ -496,6 +532,7 @@ public partial class GamePage : ContentPage
                 // Double-tap detected — cancel any pending hold
                 _holdDelayCts?.Cancel();
                 _holdDelayCts = null;
+                FlashStatus("👻 CLOAK", Color.FromRgba(160, 80, 220, 255));
                 break;
 
             case "pending_hold":
@@ -510,6 +547,7 @@ public partial class GamePage : ContentPage
                         MainThread.BeginInvokeOnMainThread(() =>
                         {
                             _viewModel.ExecuteHold();
+                            FlashHoldPanel();
                         });
                     }
                 });
@@ -518,6 +556,27 @@ public partial class GamePage : ContentPage
             case "none":
                 // Pro mode single tap — do nothing, wait for potential double-tap
                 break;
+        }
+    }
+
+    private async void FlashHoldPanel()
+    {
+        HoldBorder.Stroke = Color.FromRgb(255, 200, 0);
+        HoldBorder.StrokeThickness = 3;
+        await Task.Delay(400);
+        HoldBorder.Stroke = Color.FromRgb(68, 102, 170);
+        HoldBorder.StrokeThickness = 1;
+    }
+
+    private async void FlashStatus(string text, Color color)
+    {
+        StatusLabel.Text = text;
+        StatusLabel.TextColor = color;
+        StatusBorder.IsVisible = true;
+        await Task.Delay(600);
+        if (StatusLabel.Text == text)
+        {
+            StatusBorder.IsVisible = false;
         }
     }
 }

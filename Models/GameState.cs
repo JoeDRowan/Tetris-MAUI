@@ -138,17 +138,18 @@ public class GameState
     /// Calculate the deepest valid position for an invisible piece.
     /// Scans from the bottom of the board upward, finding the lowest row
     /// where the piece fits without overlapping existing cells or going out of bounds.
+    /// Returns -1 if no valid position exists.
     /// </summary>
     public int GetInvisibleGhostRow()
     {
         if (CurrentPiece == null) return CurrentRow;
 
         var matrix = CurrentPiece.CurrentMatrix;
-        int rows = matrix.GetLength(0);
-        int cols = matrix.GetLength(1);
 
-        // Scan from bottom to top, find the lowest row where piece fits
-        for (int testRow = Board.TotalRows - rows; testRow >= CurrentRow; testRow--)
+        // Scan from bottom to top. Start at TotalRows-1 and let HasCollision
+        // handle boundary checks (it only checks filled cells, so empty matrix
+        // rows extending past the board are fine).
+        for (int testRow = Board.TotalRows - 1; testRow >= 0; testRow--)
         {
             if (!Board.HasCollision(matrix, testRow, CurrentCol))
             {
@@ -156,8 +157,8 @@ public class GameState
             }
         }
 
-        // No valid position found below current — return current row
-        return CurrentRow;
+        // No valid position found anywhere
+        return -1;
     }
 
     private TetrominoShape GetNextFromBag()

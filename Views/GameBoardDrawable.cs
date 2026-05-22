@@ -118,7 +118,10 @@ public class GameBoardDrawable : IDrawable
             {
                 // Invisible ghost: show at deepest valid position with purple tint
                 int invisGhostRow = _state.GetInvisibleGhostRow();
-                DrawPieceWithColor(canvas, offsetX, offsetY, _state.CurrentPiece, invisGhostRow, _state.CurrentCol, cellSize, Color.FromRgba(160, 80, 220, 80));
+                if (invisGhostRow >= 0)
+                {
+                    DrawPieceWithColor(canvas, offsetX, offsetY, _state.CurrentPiece, invisGhostRow, _state.CurrentCol, cellSize, Color.FromRgba(160, 80, 220, 80));
+                }
             }
             else
             {

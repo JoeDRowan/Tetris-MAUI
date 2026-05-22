@@ -165,12 +165,20 @@ public class GameEngine
         if (_state.HoldPiece != null)
         {
             var holdShape = _state.HoldPiece.Shape;
-            _state.HoldPiece = new Tetromino(currentShape);
+            int savedRow = _state.CurrentRow;
+            int savedCol = _state.CurrentCol;
 
-            _state.CurrentPiece = new Tetromino(holdShape);
-            var matrix = _state.CurrentPiece.CurrentMatrix;
-            _state.CurrentCol = (_config.Columns - matrix.GetLength(1)) / 2;
-            _state.CurrentRow = _config.BufferRows;
+            var newPiece = new Tetromino(holdShape);
+            var matrix = newPiece.CurrentMatrix;
+
+            // Swap only allowed if the held piece fits at the current position
+            if (_state.Board.HasCollision(matrix, savedRow, savedCol))
+                return;
+
+            _state.HoldPiece = new Tetromino(currentShape);
+            _state.CurrentPiece = newPiece;
+            _state.CurrentRow = savedRow;
+            _state.CurrentCol = savedCol;
         }
         else
         {
@@ -228,8 +236,45 @@ public class GameEngine
     public void ToggleInvisibility()
     {
         if (!CanAct() || _state.CurrentPiece == null) return;
-        _state.IsInvisible = !_state.IsInvisible;
-        StateChanged?.Invoke();
+
+        if (_state.IsInvisible)
+        {
+            // Turning OFF invisibility — snap piece to nearest valid position
+            _state.IsInvisible = false;
+            var matrix = _state.CurrentPiece.CurrentMatrix;
+
+            // If current position is valid, stay there
+            if (!_state.Board.HasCollision(matrix, _state.CurrentRow, _state.CurrentCol))
+            {
+                StateChanged?.Invoke();
+                return;
+            }
+
+            // Current position overlaps — find the nearest valid position above
+            for (int testRow = _state.CurrentRow - 1; testRow >= 0; testRow--)
+            {
+                if (!_state.Board.HasCollision(matrix, testRow, _state.CurrentCol))
+                {
+                    _state.CurrentRow = testRow;
+                    StateChanged?.Invoke();
+                    return;
+                }
+            }
+
+            // Nowhere valid — lock at invisible ghost position
+            int ghostRow = _state.GetInvisibleGhostRow();
+            if (ghostRow >= 0)
+            {
+                _state.CurrentRow = ghostRow;
+            }
+            StateChanged?.Invoke();
+        }
+        else
+        {
+            // Turning ON invisibility
+            _state.IsInvisible = true;
+            StateChanged?.Invoke();
+        }
     }
 
     private void OnTick(object? sender, EventArgs e)
@@ -272,33 +317,49 @@ public class GameEngine
 
         if (_state.IsInvisible)
         {
-            // In invisible mode, piece passes through blocks — only stop at floor
-            int nextRow = _state.CurrentRow + 1;
+            // In invisible mode, piece passes through blocks — only stop at deepest valid fit
             var matrix = _state.CurrentPiece.CurrentMatrix;
             int pieceRows = matrix.GetLength(0);
+            int nextRow = _state.CurrentRow + 1;
 
             // Check if we'd go below the board
             bool hitsFloor = (nextRow + pieceRows) > _state.Board.TotalRows;
 
-            if (!hitsFloor)
+            // Find the deepest valid landing position
+            int ghostRow = _state.GetInvisibleGhostRow();
+
+            if (hitsFloor)
             {
+                // Hit absolute floor — lock at ghost position if valid, else deactivate
+                if (ghostRow >= 0)
+                {
+                    _state.CurrentRow = ghostRow;
+                }
+                _state.IsInvisible = false;
+                LockCurrentPiece();
+            }
+            else if (ghostRow < 0)
+            {
+                // No valid position exists anywhere — just keep falling until floor
+                _state.CurrentRow = nextRow;
+            }
+            else if (ghostRow < _state.CurrentRow)
+            {
+                // Ghost is above us (we've passed it) — shouldn't happen, just fall
+                _state.CurrentRow = nextRow;
+            }
+            else
+            {
+                // Ghost is below or at current position — fall toward it
                 _state.CurrentRow = nextRow;
 
-                // Check if we've reached the invisible ghost position (deepest valid fit)
-                int ghostRow = _state.GetInvisibleGhostRow();
+                // Lock only when we've reached the ghost position
                 if (_state.CurrentRow >= ghostRow)
                 {
                     _state.CurrentRow = ghostRow;
                     _state.IsInvisible = false;
                     LockCurrentPiece();
                 }
-            }
-            else
-            {
-                // Hit floor — lock at the ghost position
-                _state.CurrentRow = _state.GetInvisibleGhostRow();
-                _state.IsInvisible = false;
-                LockCurrentPiece();
             }
         }
         else
