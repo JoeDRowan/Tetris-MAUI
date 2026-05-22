@@ -141,11 +141,15 @@
 
                 <Label Text="CONTROLS" FontSize="14" TextColor="#222" FontAttributes="Bold" Margin="0,8,0,0"/>
                 <Label FontSize="12" TextColor="#333" LineBreakMode="WordWrap"
-                       Text="← / A ─ Move Left&#10;→ / D ─ Move Right&#10;↑ / W ─ Rotate&#10;↓ / S ─ Drop (tap repeatedly for fast drop)&#10;Space ─ Hold / Swap Piece (Classic only)&#10;P / Esc ─ Pause&#10;E ─ End Game"/>
+                       Text="← / A ─ Move Left&#10;→ / D ─ Move Right&#10;↑ / W ─ Rotate&#10;↓ / S ─ Drop (tap repeatedly for fast drop)&#10;Space ─ Hold / Swap Piece (Classic only)&#10;Space×2 ─ Invisibility Cloak (piece passes through blocks)&#10;P / Esc ─ Pause&#10;E ─ End Game"/>
 
                 <Label Text="HOLD PIECE (Classic mode)" FontSize="14" TextColor="#222" FontAttributes="Bold" Margin="0,8,0,0"/>
                 <Label FontSize="12" TextColor="#333" LineBreakMode="WordWrap"
                        Text="Press Space to store the current piece. If one is already&#10;held, they swap. You can only hold once per piece."/>
+
+                <Label Text="INVISIBILITY CLOAK" FontSize="14" TextColor="#222" FontAttributes="Bold" Margin="0,8,0,0"/>
+                <Label FontSize="12" TextColor="#333" LineBreakMode="WordWrap"
+                       Text="Double-tap Space to cloak the piece. While invisible, the&#10;piece passes through blocks and lands at the deepest&#10;valid gap. You can still move and rotate while cloaked."/>
 
                 <Label Text="SCORING" FontSize="14" TextColor="#222" FontAttributes="Bold" Margin="0,8,0,0"/>
                 <Label FontSize="12" TextColor="#333" LineBreakMode="WordWrap"

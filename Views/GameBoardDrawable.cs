@@ -15,6 +15,7 @@ public class GameBoardDrawable : IDrawable
     public int HighlightBottomRows { get; set; }
     public List<int> HighlightRows { get; set; } = new();
     public bool ShowFallingHighlight { get; set; }
+    public bool IsInvisible { get; set; }
 
     public GameBoardDrawable(GameConfig config)
     {
@@ -113,14 +114,31 @@ public class GameBoardDrawable : IDrawable
         // Draw ghost piece
         if (_state.CurrentPiece != null)
         {
-            int ghostRow = _state.GetGhostRow();
-            DrawPiece(canvas, offsetX, offsetY, _state.CurrentPiece, ghostRow, _state.CurrentCol, cellSize, _config.GhostPieceOpacity);
+            if (IsInvisible)
+            {
+                // Invisible ghost: show at deepest valid position with purple tint
+                int invisGhostRow = _state.GetInvisibleGhostRow();
+                DrawPieceWithColor(canvas, offsetX, offsetY, _state.CurrentPiece, invisGhostRow, _state.CurrentCol, cellSize, Color.FromRgba(160, 80, 220, 80));
+            }
+            else
+            {
+                int ghostRow = _state.GetGhostRow();
+                DrawPiece(canvas, offsetX, offsetY, _state.CurrentPiece, ghostRow, _state.CurrentCol, cellSize, _config.GhostPieceOpacity);
+            }
         }
 
         // Draw current piece
         if (_state.CurrentPiece != null)
         {
-            DrawPiece(canvas, offsetX, offsetY, _state.CurrentPiece, _state.CurrentRow, _state.CurrentCol, cellSize, 1f);
+            if (IsInvisible)
+            {
+                // Semi-transparent with a glow effect when cloaked
+                DrawPiece(canvas, offsetX, offsetY, _state.CurrentPiece, _state.CurrentRow, _state.CurrentCol, cellSize, 0.4f);
+            }
+            else
+            {
+                DrawPiece(canvas, offsetX, offsetY, _state.CurrentPiece, _state.CurrentRow, _state.CurrentCol, cellSize, 1f);
+            }
         }
 
         // Draw border
@@ -196,5 +214,38 @@ public class GameBoardDrawable : IDrawable
         canvas.FillRoundedRectangle(x, y, size, size / 3, 2);
 
         canvas.Alpha = 1f;
+    }
+
+    private void DrawPieceWithColor(ICanvas canvas, float offsetX, float offsetY, Tetromino piece, int pieceRow, int pieceCol, float cellSize, Color color)
+    {
+        var matrix = piece.CurrentMatrix;
+        int rows = matrix.GetLength(0);
+        int cols = matrix.GetLength(1);
+
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < cols; c++)
+            {
+                if (matrix[r, c] == 0) continue;
+
+                int visibleRow = pieceRow + r - _config.BufferRows;
+                int visibleCol = pieceCol + c;
+
+                if (visibleRow >= 0 && visibleRow < _config.Rows)
+                {
+                    float x = offsetX + visibleCol * cellSize + 1;
+                    float y = offsetY + visibleRow * cellSize + 1;
+                    float size = cellSize - 2;
+
+                    canvas.FillColor = color;
+                    canvas.FillRoundedRectangle(x, y, size, size, 2);
+
+                    // Purple glow border
+                    canvas.StrokeColor = Color.FromRgba(180, 100, 255, 180);
+                    canvas.StrokeSize = 2f;
+                    canvas.DrawRoundedRectangle(x, y, size, size, 2);
+                }
+            }
+        }
     }
 }

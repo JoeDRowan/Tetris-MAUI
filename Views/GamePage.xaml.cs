@@ -12,6 +12,7 @@ public partial class GamePage : ContentPage
     private readonly PreviewDrawable _holdDrawable;
     private bool _gameActive;
     private bool _dialogOpen;
+    private CancellationTokenSource? _holdDelayCts;
 
     public GamePage()
     {
@@ -142,6 +143,7 @@ public partial class GamePage : ContentPage
         MainThread.BeginInvokeOnMainThread(() =>
         {
             _boardDrawable.UpdateState(_viewModel.State);
+            _boardDrawable.IsInvisible = _viewModel.IsInvisible;
             _nextDrawable.UpdateNext([.. _viewModel.State.NextQueue.Take(_viewModel.Config.PreviewCount)]);
             _holdDrawable.UpdateHold(_viewModel.State.HoldPiece);
 
@@ -453,7 +455,7 @@ public partial class GamePage : ContentPage
                 _viewModel.DownPress();
                 return true;
             case "space":
-                _viewModel.HoldPiece();
+                HandleSpacePress();
                 return true;
             case "p":
             case "escape":
@@ -482,5 +484,40 @@ public partial class GamePage : ContentPage
                 return true;
         }
         return false;
+    }
+
+    private void HandleSpacePress()
+    {
+        var result = _viewModel.SpacePressed();
+
+        switch (result)
+        {
+            case "invisible":
+                // Double-tap detected — cancel any pending hold
+                _holdDelayCts?.Cancel();
+                _holdDelayCts = null;
+                break;
+
+            case "pending_hold":
+                // Classic mode: wait to see if it's a double-tap
+                _holdDelayCts?.Cancel();
+                _holdDelayCts = new CancellationTokenSource();
+                var cts = _holdDelayCts;
+                _ = Task.Delay(310, cts.Token).ContinueWith(t =>
+                {
+                    if (!t.IsCanceled)
+                    {
+                        MainThread.BeginInvokeOnMainThread(() =>
+                        {
+                            _viewModel.ExecuteHold();
+                        });
+                    }
+                });
+                break;
+
+            case "none":
+                // Pro mode single tap — do nothing, wait for potential double-tap
+                break;
+        }
     }
 }

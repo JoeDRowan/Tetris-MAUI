@@ -94,6 +94,11 @@ public class GameViewModel : INotifyPropertyChanged
     public void DownPress() => _engine.DownPress();
     public void StopSoftDrop() => _engine.StopSoftDrop();
     public void HoldPiece() => _engine.HoldPiece();
+    public string SpacePressed() => _engine.SpacePressed();
+    public void ExecuteHold() => _engine.ExecuteHold();
+    public void ToggleInvisibility() => _engine.ToggleInvisibility();
+    public bool IsInvisible => State.IsInvisible;
+    public int GetInvisibleGhostRow() => State.GetInvisibleGhostRow();
     public int ExecuteLevelBonusRemoval() => _engine.ExecuteLevelBonusRemoval();
     public void ExecutePendingClear() => _engine.ExecutePendingClear();
     public void ExecutePendingCascadeClear() => _engine.ExecutePendingCascadeClear();

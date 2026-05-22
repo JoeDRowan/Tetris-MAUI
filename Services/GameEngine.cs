@@ -22,6 +22,8 @@ public class GameEngine
     private bool _fastDropActive;
     private DateTime _gameStartTime;
     private int _pendingBonusRows;
+    private DateTime _lastSpacePress;
+    private const double DoubleTapThresholdMs = 300;
 
     public GameState State => _state;
     public GameConfig Config => _config;
@@ -51,6 +53,7 @@ public class GameEngine
         _downPressCount = 0;
         _pendingBonusRows = 0;
         _gameStartTime = DateTime.Now;
+        _lastSpacePress = DateTime.MinValue;
 
         _gameTimer?.Stop();
         _gameTimer = dispatcher.CreateTimer();
@@ -175,6 +178,57 @@ public class GameEngine
             _state.SpawnNextPiece();
         }
 
+        _state.IsInvisible = false;
+        StateChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Handle spacebar press. Detects double-tap for invisibility toggle.
+    /// In Classic mode: single tap = Hold, double-tap = toggle invisible.
+    /// In Pro mode: double-tap = toggle invisible (single tap does nothing).
+    /// Returns "hold" if single-tap hold should execute, "invisible" if toggled, or "none".
+    /// </summary>
+    public string SpacePressed()
+    {
+        if (!CanAct()) return "none";
+
+        var now = DateTime.Now;
+        double elapsed = (now - _lastSpacePress).TotalMilliseconds;
+        _lastSpacePress = now;
+
+        if (elapsed <= DoubleTapThresholdMs)
+        {
+            // Double-tap detected — toggle invisibility
+            ToggleInvisibility();
+            return "invisible";
+        }
+
+        // For Classic mode, we need to wait to see if it's a double-tap.
+        // We'll handle the single-tap case via a delayed action from the UI.
+        // For Pro mode (no hold), single tap does nothing.
+        if (!_config.HoldEnabled)
+        {
+            return "none"; // Pro: single tap does nothing, wait for potential double-tap
+        }
+
+        return "pending_hold"; // Classic: might be hold, wait for double-tap window
+    }
+
+    /// <summary>
+    /// Execute hold after confirming it's not a double-tap (called by UI after timeout).
+    /// </summary>
+    public void ExecuteHold()
+    {
+        HoldPiece();
+    }
+
+    /// <summary>
+    /// Toggle invisibility cloak on the current piece.
+    /// </summary>
+    public void ToggleInvisibility()
+    {
+        if (!CanAct() || _state.CurrentPiece == null) return;
+        _state.IsInvisible = !_state.IsInvisible;
         StateChanged?.Invoke();
     }
 
@@ -216,13 +270,47 @@ public class GameEngine
     {
         if (_state.CurrentPiece == null) return;
 
-        if (!_state.Board.HasCollision(_state.CurrentPiece.CurrentMatrix, _state.CurrentRow + 1, _state.CurrentCol))
+        if (_state.IsInvisible)
         {
-            _state.CurrentRow++;
+            // In invisible mode, piece passes through blocks — only stop at floor
+            int nextRow = _state.CurrentRow + 1;
+            var matrix = _state.CurrentPiece.CurrentMatrix;
+            int pieceRows = matrix.GetLength(0);
+
+            // Check if we'd go below the board
+            bool hitsFloor = (nextRow + pieceRows) > _state.Board.TotalRows;
+
+            if (!hitsFloor)
+            {
+                _state.CurrentRow = nextRow;
+
+                // Check if we've reached the invisible ghost position (deepest valid fit)
+                int ghostRow = _state.GetInvisibleGhostRow();
+                if (_state.CurrentRow >= ghostRow)
+                {
+                    _state.CurrentRow = ghostRow;
+                    _state.IsInvisible = false;
+                    LockCurrentPiece();
+                }
+            }
+            else
+            {
+                // Hit floor — lock at the ghost position
+                _state.CurrentRow = _state.GetInvisibleGhostRow();
+                _state.IsInvisible = false;
+                LockCurrentPiece();
+            }
         }
         else
         {
-            LockCurrentPiece();
+            if (!_state.Board.HasCollision(_state.CurrentPiece.CurrentMatrix, _state.CurrentRow + 1, _state.CurrentCol))
+            {
+                _state.CurrentRow++;
+            }
+            else
+            {
+                LockCurrentPiece();
+            }
         }
 
         StateChanged?.Invoke();
@@ -358,6 +446,9 @@ public class GameEngine
 
     private void FinalizeLock()
     {
+        // Reset invisibility for next piece
+        _state.IsInvisible = false;
+
         // Check game over
         if (_state.Board.IsBufferOccupied())
         {
@@ -389,6 +480,32 @@ public class GameEngine
         int newRow = _state.CurrentRow + dRow;
         int newCol = _state.CurrentCol + dCol;
 
+        if (_state.IsInvisible)
+        {
+            // When invisible, only check wall boundaries, not block collisions
+            var matrix = _state.CurrentPiece.CurrentMatrix;
+            int cols = matrix.GetLength(1);
+            int rows = matrix.GetLength(0);
+
+            // Check horizontal bounds
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    if (matrix[r, c] == 0) continue;
+                    int boardCol = newCol + c;
+                    int boardRow = newRow + r;
+                    if (boardCol < 0 || boardCol >= _state.Board.Columns) return false;
+                    if (boardRow >= _state.Board.TotalRows) return false;
+                }
+            }
+
+            _state.CurrentRow = newRow;
+            _state.CurrentCol = newCol;
+            StateChanged?.Invoke();
+            return true;
+        }
+
         if (!_state.Board.HasCollision(_state.CurrentPiece.CurrentMatrix, newRow, newCol))
         {
             _state.CurrentRow = newRow;
@@ -411,6 +528,31 @@ public class GameEngine
 
         var newMatrix = piece.GetRotation(newRotation);
 
+        if (_state.IsInvisible)
+        {
+            // When invisible, only check wall/floor boundaries
+            if (!HasBoundaryCollision(newMatrix, _state.CurrentRow, _state.CurrentCol))
+            {
+                piece.RotationState = newRotation;
+                StateChanged?.Invoke();
+                return;
+            }
+            // Try basic wall kicks for boundary only
+            int[][] offsets = { new[] { -1, 0 }, new[] { 1, 0 }, new[] { 0, -1 } };
+            foreach (var off in offsets)
+            {
+                if (!HasBoundaryCollision(newMatrix, _state.CurrentRow + off[1], _state.CurrentCol + off[0]))
+                {
+                    piece.RotationState = newRotation;
+                    _state.CurrentCol += off[0];
+                    _state.CurrentRow += off[1];
+                    StateChanged?.Invoke();
+                    return;
+                }
+            }
+            return;
+        }
+
         var kicks = GetWallKicks(piece.Shape, fromRotation, clockwise);
 
         foreach (var (dx, dy) in kicks)
@@ -427,6 +569,28 @@ public class GameEngine
                 return;
             }
         }
+    }
+
+    /// <summary>
+    /// Check only wall and floor boundaries (not block collisions). Used for invisible mode.
+    /// </summary>
+    private bool HasBoundaryCollision(int[,] matrix, int pieceRow, int pieceCol)
+    {
+        int rows = matrix.GetLength(0);
+        int cols = matrix.GetLength(1);
+
+        for (int r = 0; r < rows; r++)
+        {
+            for (int c = 0; c < cols; c++)
+            {
+                if (matrix[r, c] == 0) continue;
+                int boardRow = pieceRow + r;
+                int boardCol = pieceCol + c;
+                if (boardCol < 0 || boardCol >= _state.Board.Columns) return true;
+                if (boardRow >= _state.Board.TotalRows) return true;
+            }
+        }
+        return false;
     }
 
     private static (int dx, int dy)[] GetWallKicks(TetrominoShape shape, int fromRotation, bool clockwise)

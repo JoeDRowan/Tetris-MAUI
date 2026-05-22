@@ -25,6 +25,7 @@ public class GameState
     public int TetrisCount { get; set; }
     public int CascadeCount { get; set; }
     public int CascadeLines { get; set; }
+    public bool IsInvisible { get; set; }
     public bool IsGameOver { get; set; }
     public bool IsPaused { get; set; }
 
@@ -47,6 +48,7 @@ public class GameState
         TetrisCount = 0;
         CascadeCount = 0;
         CascadeLines = 0;
+        IsInvisible = false;
         IsGameOver = false;
         IsPaused = false;
         HoldPiece = null;
@@ -130,6 +132,32 @@ public class GameState
             ghostRow++;
         }
         return ghostRow;
+    }
+
+    /// <summary>
+    /// Calculate the deepest valid position for an invisible piece.
+    /// Scans from the bottom of the board upward, finding the lowest row
+    /// where the piece fits without overlapping existing cells or going out of bounds.
+    /// </summary>
+    public int GetInvisibleGhostRow()
+    {
+        if (CurrentPiece == null) return CurrentRow;
+
+        var matrix = CurrentPiece.CurrentMatrix;
+        int rows = matrix.GetLength(0);
+        int cols = matrix.GetLength(1);
+
+        // Scan from bottom to top, find the lowest row where piece fits
+        for (int testRow = Board.TotalRows - rows; testRow >= CurrentRow; testRow--)
+        {
+            if (!Board.HasCollision(matrix, testRow, CurrentCol))
+            {
+                return testRow;
+            }
+        }
+
+        // No valid position found below current — return current row
+        return CurrentRow;
     }
 
     private TetrominoShape GetNextFromBag()
