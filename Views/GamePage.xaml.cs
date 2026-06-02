@@ -13,7 +13,6 @@ public partial class GamePage : ContentPage
     private bool _gameActive;
     private bool _dialogOpen;
     private CancellationTokenSource? _holdDelayCts;
-    private bool _inCascadeSequence;
 
     public GamePage()
     {
@@ -173,15 +172,12 @@ public partial class GamePage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(async () =>
         {
-            if (isCascade)
-                _inCascadeSequence = true;
-
             // Highlight the rows about to be cleared
             _boardDrawable.HighlightRows = rowIndices;
             BoardView.Invalidate();
 
             // Hold highlight so player can see which rows are clearing
-            await Task.Delay(600);
+            await Task.Delay(250);
 
             // Remove highlight and clear the rows
             _boardDrawable.HighlightRows = new List<int>();
@@ -204,49 +200,32 @@ public partial class GamePage : ContentPage
             {
                 // No floating cells — go straight to cascade check
                 _viewModel.CheckForCascade();
-                _inCascadeSequence = false;
                 return;
             }
 
             // Pause after row removal so player sees the gap
-            await Task.Delay(500);
-
-            // Show message only during cascade sequences (not normal first clear)
-            if (_inCascadeSequence)
-            {
-                StatusLabel.Text = "⬇️ Incoming!";
-                StatusLabel.TextColor = Color.FromRgb(200, 150, 0);
-                StatusLabel.FontSize = 28;
-                StatusBorder.IsVisible = true;
-            }
+            await Task.Delay(200);
 
             // Highlight orphaned blocks before they start falling
             _boardDrawable.ShowFallingHighlight = true;
             BoardView.Invalidate();
-            await Task.Delay(700);
+            await Task.Delay(200);
 
             // Animate gravity: drop cells one row at a time
             while (_viewModel.ApplyGravityStep())
             {
                 BoardView.Invalidate();
-                await Task.Delay(180);
+                await Task.Delay(150);
             }
 
             // Pause at landing so player sees final position
-            await Task.Delay(600);
+            await Task.Delay(200);
 
             _boardDrawable.ShowFallingHighlight = false;
             BoardView.Invalidate();
 
-            // Clear the message
-            if (StatusLabel.Text == "⬇️ Incoming!")
-            {
-                StatusBorder.IsVisible = false;
-                StatusLabel.FontSize = 32;
-            }
-
             // Pause before checking for new filled rows
-            await Task.Delay(800);
+            await Task.Delay(250);
 
             // Check if the fallen blocks formed new complete rows
             _viewModel.CheckForCascade();
@@ -290,16 +269,16 @@ public partial class GamePage : ContentPage
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             // Brief pause to let player see gravity effect
-            await Task.Delay(400);
+            await Task.Delay(200);
 
-            StatusLabel.Text = $"✨ {linesCleared} line{(linesCleared > 1 ? "s" : "")} cleared! ✨";
+            StatusLabel.Text = $"{linesCleared} row{(linesCleared > 1 ? "s" : "")} cleared by gravity falls";
             StatusLabel.TextColor = Color.FromRgb(200, 60, 200);
-            StatusLabel.FontSize = 28;
+            StatusLabel.FontSize = 16;
             StatusBorder.IsVisible = true;
             StatusBorder.Opacity = 0;
 
             // Flash board to show cascade
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 2; i++)
             {
                 BoardView.Opacity = 0.5;
                 StatusBorder.Opacity = i % 2 == 0 ? 0.95 : 0.5;
@@ -309,9 +288,9 @@ public partial class GamePage : ContentPage
             }
             StatusBorder.Opacity = 0.95;
 
-            await Task.Delay(1200);
+            await Task.Delay(700);
 
-            if (StatusLabel.Text?.Contains("cleared") == true)
+            if (StatusLabel.Text?.Contains("gravity falls") == true)
             {
                 StatusBorder.IsVisible = false;
                 StatusLabel.TextColor = Color.FromRgb(34, 34, 34);
