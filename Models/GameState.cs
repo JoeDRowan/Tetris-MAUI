@@ -77,7 +77,7 @@ public class GameState
 
         // Spawn at top of visible area (internal row = BufferRows = visible row 0)
         var matrix = CurrentPiece.CurrentMatrix;
-        CurrentCol = (_config.Columns - matrix.GetLength(1)) / 2;
+        CurrentCol = GetOptimalSpawnCol(matrix);
         CurrentRow = _config.BufferRows;
 
         // Check if spawn position has collision (game over)
@@ -88,6 +88,74 @@ public class GameState
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Determines the optimal column to spawn a piece.
+    /// Uses centre until any column has blocks within 5 rows of the top visible area,
+    /// then picks the column region with the most free space.
+    /// </summary>
+    private int GetOptimalSpawnCol(int[,] matrix)
+    {
+        int pieceWidth = matrix.GetLength(1);
+        int centreCol = (_config.Columns - pieceWidth) / 2;
+
+        // Threshold: if no column has a block above this row, use centre.
+        // "8 rows from the bottom" of the visible area = internal row (TotalRows - 8)
+        int threshold = Board.TotalRows - 8;
+
+        // Find the highest occupied row per column (lowest internal row number = highest)
+        bool anyAboveThreshold = false;
+        int[] columnHeights = new int[_config.Columns];
+        for (int col = 0; col < _config.Columns; col++)
+        {
+            columnHeights[col] = Board.TotalRows; // default: empty (bottom)
+            for (int row = _config.BufferRows; row < Board.TotalRows; row++)
+            {
+                if (Board.GetCellInternal(row, col) != null)
+                {
+                    columnHeights[col] = row;
+                    if (row <= threshold)
+                        anyAboveThreshold = true;
+                    break;
+                }
+            }
+        }
+
+        if (!anyAboveThreshold)
+            return centreCol;
+
+        // Score each valid spawn column by the minimum height in the columns it would occupy.
+        // Higher columnHeights[c] value = more space (piece is further from top).
+        int bestCol = centreCol;
+        int bestMinHeight = -1;
+
+        int maxCol = _config.Columns - pieceWidth;
+        for (int col = 0; col <= maxCol; col++)
+        {
+            // Find the minimum height (worst/most crowded) among the columns this piece spans
+            int minHeight = Board.TotalRows;
+            for (int pc = 0; pc < pieceWidth; pc++)
+            {
+                if (columnHeights[col + pc] < minHeight)
+                    minHeight = columnHeights[col + pc];
+            }
+
+            // Prefer positions with more headroom (higher minHeight value)
+            // On ties, prefer position closer to centre
+            if (minHeight > bestMinHeight ||
+                (minHeight == bestMinHeight && Math.Abs(col - centreCol) < Math.Abs(bestCol - centreCol)))
+            {
+                bestMinHeight = minHeight;
+                bestCol = col;
+            }
+        }
+
+        // Verify no collision at the chosen column; fall back to centre if blocked
+        if (Board.HasCollision(matrix, _config.BufferRows, bestCol))
+            return centreCol;
+
+        return bestCol;
     }
 
     /// <summary>
