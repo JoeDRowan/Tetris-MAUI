@@ -439,84 +439,151 @@ public partial class GamePage : ContentPage
             return;
         }
 
-        for (int i = 0; i < scores.Count; i++)
+        for (int i = 0; i < 10; i++)
         {
-            var entry = scores[i];
-            bool isHighlighted = (i + 1) == highlightRank;
-
-            var row = new Border
+            if (i < scores.Count)
             {
-                BackgroundColor = isHighlighted ? Color.FromRgba(255, 200, 50, 80) : Colors.Transparent,
-                Stroke = isHighlighted ? Color.FromRgb(204, 150, 0) : Colors.Transparent,
-                StrokeThickness = isHighlighted ? 1 : 0,
-                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 4 },
-                Padding = new Thickness(8, 3)
-            };
+                var entry = scores[i];
+                bool isHighlighted = (i + 1) == highlightRank;
 
-            var grid = new Grid
-            {
-                ColumnDefinitions =
+                var row = new Border
                 {
-                    new ColumnDefinition(new GridLength(28)),
-                    new ColumnDefinition(new GridLength(1, GridUnitType.Star)),
-                    new ColumnDefinition(new GridLength(70)),
-                    new ColumnDefinition(new GridLength(50))
-                }
-            };
+                    BackgroundColor = isHighlighted ? Color.FromRgba(255, 200, 50, 80) : Colors.Transparent,
+                    Stroke = isHighlighted ? Color.FromRgb(204, 150, 0) : Colors.Transparent,
+                    StrokeThickness = isHighlighted ? 1 : 0,
+                    StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 4 },
+                    Padding = new Thickness(8, 3)
+                };
 
-            var rankLabel = new Label
+                var grid = new Grid
+                {
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition(new GridLength(28)),
+                        new ColumnDefinition(new GridLength(1, GridUnitType.Star)),
+                        new ColumnDefinition(new GridLength(75)),
+                        new ColumnDefinition(new GridLength(70)),
+                        new ColumnDefinition(new GridLength(40))
+                    }
+                };
+
+                grid.Add(new Label
+                {
+                    Text = $"#{i + 1}",
+                    FontSize = 12,
+                    FontAttributes = isHighlighted ? FontAttributes.Bold : FontAttributes.None,
+                    TextColor = isHighlighted ? Color.FromRgb(180, 100, 0) : Color.FromRgb(100, 100, 100),
+                    VerticalOptions = LayoutOptions.Center
+                }, 0, 0);
+
+                grid.Add(new Label
+                {
+                    Text = entry.Name,
+                    FontSize = 12,
+                    FontAttributes = isHighlighted ? FontAttributes.Bold : FontAttributes.None,
+                    TextColor = isHighlighted ? Color.FromRgb(34, 34, 34) : Color.FromRgb(68, 68, 68),
+                    VerticalOptions = LayoutOptions.Center,
+                    LineBreakMode = LineBreakMode.TailTruncation
+                }, 1, 0);
+
+                grid.Add(new Label
+                {
+                    Text = entry.Date.ToString("dd MMM yy"),
+                    FontSize = 11,
+                    TextColor = Color.FromRgb(130, 130, 130),
+                    VerticalOptions = LayoutOptions.Center
+                }, 2, 0);
+
+                grid.Add(new Label
+                {
+                    Text = entry.Score.ToString("N0"),
+                    FontSize = 12,
+                    FontAttributes = isHighlighted ? FontAttributes.Bold : FontAttributes.None,
+                    TextColor = isHighlighted ? Color.FromRgb(34, 34, 34) : Color.FromRgb(68, 68, 68),
+                    HorizontalTextAlignment = TextAlignment.End,
+                    VerticalOptions = LayoutOptions.Center
+                }, 3, 0);
+
+                grid.Add(new Label
+                {
+                    Text = $"Lvl {entry.Level}",
+                    FontSize = 12,
+                    TextColor = Color.FromRgb(100, 100, 100),
+                    HorizontalTextAlignment = TextAlignment.End,
+                    VerticalOptions = LayoutOptions.Center
+                }, 4, 0);
+
+                row.Content = grid;
+                HighScoresStack.Children.Add(row);
+            }
+            else
             {
-                Text = $"#{i + 1}",
-                FontSize = 12,
-                FontAttributes = isHighlighted ? FontAttributes.Bold : FontAttributes.None,
-                TextColor = isHighlighted ? Color.FromRgb(180, 100, 0) : Color.FromRgb(100, 100, 100),
-                VerticalOptions = LayoutOptions.Center
-            };
+                // Empty placeholder row
+                var emptyRow = new Border
+                {
+                    BackgroundColor = Colors.Transparent,
+                    Stroke = Colors.Transparent,
+                    Padding = new Thickness(8, 3)
+                };
 
-            var nameLabel = new Label
-            {
-                Text = entry.Name,
-                FontSize = 12,
-                FontAttributes = isHighlighted ? FontAttributes.Bold : FontAttributes.None,
-                TextColor = isHighlighted ? Color.FromRgb(34, 34, 34) : Color.FromRgb(68, 68, 68),
-                VerticalOptions = LayoutOptions.Center,
-                LineBreakMode = LineBreakMode.TailTruncation
-            };
+                var emptyGrid = new Grid
+                {
+                    ColumnDefinitions =
+                    {
+                        new ColumnDefinition(new GridLength(28)),
+                        new ColumnDefinition(new GridLength(1, GridUnitType.Star))
+                    }
+                };
 
-            var scoreLabel = new Label
-            {
-                Text = entry.Score.ToString("N0"),
-                FontSize = 12,
-                FontAttributes = isHighlighted ? FontAttributes.Bold : FontAttributes.None,
-                TextColor = isHighlighted ? Color.FromRgb(34, 34, 34) : Color.FromRgb(68, 68, 68),
-                HorizontalTextAlignment = TextAlignment.End,
-                VerticalOptions = LayoutOptions.Center
-            };
+                emptyGrid.Add(new Label
+                {
+                    Text = $"#{i + 1}",
+                    FontSize = 12,
+                    TextColor = Color.FromRgb(180, 180, 180),
+                    VerticalOptions = LayoutOptions.Center
+                }, 0, 0);
 
-            var levelLabel = new Label
-            {
-                Text = $"Lvl {entry.Level}",
-                FontSize = 12,
-                TextColor = Color.FromRgb(100, 100, 100),
-                HorizontalTextAlignment = TextAlignment.End,
-                VerticalOptions = LayoutOptions.Center
-            };
+                emptyGrid.Add(new Label
+                {
+                    Text = "---",
+                    FontSize = 12,
+                    TextColor = Color.FromRgb(180, 180, 180),
+                    VerticalOptions = LayoutOptions.Center
+                }, 1, 0);
 
-            grid.Add(rankLabel, 0, 0);
-            grid.Add(nameLabel, 1, 0);
-            grid.Add(scoreLabel, 2, 0);
-            grid.Add(levelLabel, 3, 0);
-
-            row.Content = grid;
-            HighScoresStack.Children.Add(row);
+                emptyRow.Content = emptyGrid;
+                HighScoresStack.Children.Add(emptyRow);
+            }
         }
+
+        // Scroll to show relevant window (5 visible rows)
+        // If player placed, center on their rank; otherwise show top
+        _ = Task.Delay(50).ContinueWith(_ =>
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                if (highlightRank > 0 && highlightRank > 3)
+                {
+                    // Scroll so highlighted row is ~centered (2 above, 2 below)
+                    int scrollToIndex = Math.Max(0, highlightRank - 3);
+                    var targetElement = HighScoresStack.Children[scrollToIndex] as View;
+                    if (targetElement != null)
+                        await HighScoresScrollView.ScrollToAsync(targetElement, ScrollToPosition.Start, true);
+                }
+                else
+                {
+                    await HighScoresScrollView.ScrollToAsync(0, 0, false);
+                }
+            });
+        });
     }
 
     private async Task<int> PromptAndSaveHighScore()
     {
         _dialogOpen = true;
-        string name = await DisplayPromptAsync("High Score!",
-            $"Score: {_viewModel.Score}\nEnter your name:",
+        int projectedRank = _viewModel.HighScoreService.GetProjectedRank(_viewModel.Score);
+        string name = await DisplayPromptAsync("🏆 High Score!",
+            $"Score: {_viewModel.Score}\nYou made it to position #{projectedRank} on the high score table!\n\nEnter your name:",
             "Save", "Cancel", "Player", 20);
         _dialogOpen = false;
 

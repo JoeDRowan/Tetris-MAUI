@@ -29,6 +29,19 @@ public class HighScoreService
     }
 
     /// <summary>
+    /// Returns the 1-based rank the score would achieve (without saving).
+    /// </summary>
+    public int GetProjectedRank(int score)
+    {
+        for (int i = 0; i < _scores.Count; i++)
+        {
+            if (score >= _scores[i].Score)
+                return i + 1;
+        }
+        return _scores.Count + 1;
+    }
+
+    /// <summary>
     /// Adds a score and returns the 1-based rank (or -1 if not placed).
     /// </summary>
     public int AddScore(HighScore entry)
