@@ -25,7 +25,7 @@ public class HighScoreService
 
     public bool IsHighScore(int score)
     {
-        return _scores.Count < MaxScores || score > _scores[^1].Score;
+        return _scores.Count < MaxScores || score >= _scores[^1].Score;
     }
 
     /// <summary>
@@ -34,7 +34,8 @@ public class HighScoreService
     public int AddScore(HighScore entry)
     {
         _scores.Add(entry);
-        _scores = [.. _scores.OrderByDescending(s => s.Score).Take(MaxScores)];
+        // Among equal scores, newer entries (later Date) rank higher
+        _scores = [.. _scores.OrderByDescending(s => s.Score).ThenByDescending(s => s.Date).Take(MaxScores)];
         Save();
 
         // Find the rank by matching the entry

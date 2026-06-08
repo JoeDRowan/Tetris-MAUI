@@ -113,7 +113,6 @@ public partial class GamePage : ContentPage
         ExitGameButton.IsVisible = true;
         // Mode switch stays enabled during game
         _gameActive = true;
-        _highScoreSaved = false;
         _viewModel.StartNewGame(Dispatcher);
     }
 
@@ -125,23 +124,13 @@ public partial class GamePage : ContentPage
         }
     }
 
-    private bool _highScoreSaved;
-
-    private async void OnStatsExitClicked(object? sender, EventArgs e)
+    private void OnStatsExitClicked(object? sender, EventArgs e)
     {
-        if (!_highScoreSaved && _viewModel.CheckHighScore())
-        {
-            await ShowHighScorePrompt();
-        }
         Application.Current?.CloseWindow(Application.Current.Windows[0]);
     }
 
-    private async void OnPlayAgainClicked(object? sender, EventArgs e)
+    private void OnPlayAgainClicked(object? sender, EventArgs e)
     {
-        if (!_highScoreSaved && _viewModel.CheckHighScore())
-        {
-            await ShowHighScorePrompt();
-        }
         OnNewGameClicked(sender, e);
     }
 
@@ -382,17 +371,30 @@ public partial class GamePage : ContentPage
         });
     }
 
+    private bool _handlingGameOver;
+
     private void OnGameOver()
     {
         _gameActive = false;
-        MainThread.BeginInvokeOnMainThread(() =>
+        MainThread.BeginInvokeOnMainThread(async () =>
         {
+            if (_handlingGameOver) return;
+            _handlingGameOver = true;
+
             ExitGameButton.IsVisible = false;
-            ShowStatsOverlay();
+
+            int rank = -1;
+            if (_viewModel.CheckHighScore())
+            {
+                rank = await PromptAndSaveHighScore();
+            }
+
+            ShowStatsOverlay(rank);
+            _handlingGameOver = false;
         });
     }
 
-    private void ShowStatsOverlay()
+    private void ShowStatsOverlay(int highlightRank = -1)
     {
         var elapsed = _viewModel.ElapsedTime;
         var modeText = _viewModel.Config.Mode == GameMode.Pro ? "Pro" : "Classic";
@@ -403,12 +405,114 @@ public partial class GamePage : ContentPage
         StatsTetrisLabel.Text = $"Tetrises: {_viewModel.TetrisCount}  |  Cascades: {_viewModel.CascadeCount} ({_viewModel.CascadeLines} lines)";
         StatsTimeLabel.Text = $"Time: {elapsed.Minutes}:{elapsed.Seconds:D2}";
         StatsModeLabel.Text = $"Mode: {modeText}";
-        StatsRankLabel.IsVisible = false;
+
+        if (highlightRank > 0)
+        {
+            StatsRankLabel.Text = $"🏆 High Score! Ranked #{highlightRank}";
+            StatsRankLabel.IsVisible = true;
+        }
+        else
+        {
+            StatsRankLabel.IsVisible = false;
+        }
+
+        PopulateHighScoresTable(highlightRank);
+
         StatsContinueButton.IsVisible = _viewModel.EndedVoluntarily;
         StatsPanel.IsVisible = true;
     }
 
-    private async Task ShowHighScorePrompt()
+    private void PopulateHighScoresTable(int highlightRank)
+    {
+        HighScoresStack.Children.Clear();
+        var scores = _viewModel.HighScoreService.Scores;
+
+        if (scores.Count == 0)
+        {
+            HighScoresStack.Children.Add(new Label
+            {
+                Text = "No high scores yet",
+                FontSize = 12,
+                TextColor = Color.FromRgb(136, 136, 136),
+                HorizontalOptions = LayoutOptions.Center
+            });
+            return;
+        }
+
+        for (int i = 0; i < scores.Count; i++)
+        {
+            var entry = scores[i];
+            bool isHighlighted = (i + 1) == highlightRank;
+
+            var row = new Border
+            {
+                BackgroundColor = isHighlighted ? Color.FromRgba(255, 200, 50, 80) : Colors.Transparent,
+                Stroke = isHighlighted ? Color.FromRgb(204, 150, 0) : Colors.Transparent,
+                StrokeThickness = isHighlighted ? 1 : 0,
+                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 4 },
+                Padding = new Thickness(8, 3)
+            };
+
+            var grid = new Grid
+            {
+                ColumnDefinitions =
+                {
+                    new ColumnDefinition(new GridLength(28)),
+                    new ColumnDefinition(new GridLength(1, GridUnitType.Star)),
+                    new ColumnDefinition(new GridLength(70)),
+                    new ColumnDefinition(new GridLength(50))
+                }
+            };
+
+            var rankLabel = new Label
+            {
+                Text = $"#{i + 1}",
+                FontSize = 12,
+                FontAttributes = isHighlighted ? FontAttributes.Bold : FontAttributes.None,
+                TextColor = isHighlighted ? Color.FromRgb(180, 100, 0) : Color.FromRgb(100, 100, 100),
+                VerticalOptions = LayoutOptions.Center
+            };
+
+            var nameLabel = new Label
+            {
+                Text = entry.Name,
+                FontSize = 12,
+                FontAttributes = isHighlighted ? FontAttributes.Bold : FontAttributes.None,
+                TextColor = isHighlighted ? Color.FromRgb(34, 34, 34) : Color.FromRgb(68, 68, 68),
+                VerticalOptions = LayoutOptions.Center,
+                LineBreakMode = LineBreakMode.TailTruncation
+            };
+
+            var scoreLabel = new Label
+            {
+                Text = entry.Score.ToString("N0"),
+                FontSize = 12,
+                FontAttributes = isHighlighted ? FontAttributes.Bold : FontAttributes.None,
+                TextColor = isHighlighted ? Color.FromRgb(34, 34, 34) : Color.FromRgb(68, 68, 68),
+                HorizontalTextAlignment = TextAlignment.End,
+                VerticalOptions = LayoutOptions.Center
+            };
+
+            var levelLabel = new Label
+            {
+                Text = $"Lvl {entry.Level}",
+                FontSize = 12,
+                TextColor = Color.FromRgb(100, 100, 100),
+                HorizontalTextAlignment = TextAlignment.End,
+                VerticalOptions = LayoutOptions.Center
+            };
+
+            grid.Add(rankLabel, 0, 0);
+            grid.Add(nameLabel, 1, 0);
+            grid.Add(scoreLabel, 2, 0);
+            grid.Add(levelLabel, 3, 0);
+
+            row.Content = grid;
+            HighScoresStack.Children.Add(row);
+        }
+    }
+
+    private async Task<int> PromptAndSaveHighScore()
     {
         _dialogOpen = true;
         string name = await DisplayPromptAsync("High Score!",
@@ -418,14 +522,9 @@ public partial class GamePage : ContentPage
 
         if (!string.IsNullOrWhiteSpace(name))
         {
-            _highScoreSaved = true;
-            int rank = _viewModel.SaveHighScore(name);
-            if (rank > 0)
-            {
-                StatsRankLabel.Text = $"🏆 High Score! Ranked #{rank}";
-                StatsRankLabel.IsVisible = true;
-            }
+            return _viewModel.SaveHighScore(name);
         }
+        return -1;
     }
 
     public bool HandleKeyDown(string key)

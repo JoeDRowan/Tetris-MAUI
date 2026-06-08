@@ -112,6 +112,9 @@
                 <Label x:Name="StatsModeLabel" FontSize="16" TextColor="#222"/>
                 <Label x:Name="StatsRankLabel" FontSize="16" TextColor="#cc6600" FontAttributes="Bold" IsVisible="False"/>
                 <BoxView HeightRequest="1" Color="#99aacc"/>
+                <Label Text="TOP 10 HIGH SCORES" FontSize="14" TextColor="#2060cc" FontAttributes="Bold" HorizontalOptions="Center" Margin="0,4,0,2"/>
+                <VerticalStackLayout x:Name="HighScoresStack" Spacing="2"/>
+                <BoxView HeightRequest="1" Color="#99aacc" Margin="0,4,0,0"/>
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="12">
                     <Button x:Name="StatsContinueButton" Text="Continue (C)" Clicked="OnStatsContinueClicked"
                             BackgroundColor="#22aa44" TextColor="White" FontAttributes="Bold"
